@@ -1,31 +1,17 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import CustomButton from '../../components/CustomButton';
 import LogoutButton from '../../components/LogoutButton';
-import CustomCard from '../../components/CustomCard';
 import { USER_LOGIN_RESET } from '../../app/action';
-import { COLORS, IMG, ROUTES } from '../../utils';
-
+import { COLORS, IMG } from '../../utils';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Image source={IMG.CASACLICK} style={styles.logo} resizeMode="contain" />
         <Text style={styles.tagline}>A cozy home in just one click</Text>
-
-        <CustomCard label="Welcome to the Home Screen!" />
-
-        <CustomButton
-          label="Go to profile"
-          onPress={() => {
-            navigation.navigate(ROUTES.PROFILE);
-          }}
-        />
       </View>
       <View style={styles.footer}>
         <LogoutButton onLogout={() => dispatch({ type: USER_LOGIN_RESET })} />
@@ -57,7 +43,6 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     textAlign: 'center',
     marginTop: 16,
-    marginBottom: 8,
   },
   footer: {
     alignItems: 'center',

@@ -5,41 +5,31 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import React from 'react';
+import { View } from 'react-native';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+import Navigations from './src/navigations';
+import configureStore from './src/app/reducers';
+import rootSaga from './src/app/saga';
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
+const App = () => {
+  const { store, persistor, runSaga } = React.useMemo(() => configureStore(), []);
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+  React.useEffect(() => {
+    runSaga(rootSaga);
+  }, [runSaga]);
 
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <View style={{ flex: 1 }}>
+          <Navigations />
+        </View>
+      </PersistGate>
+    </Provider>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
