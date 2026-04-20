@@ -5,6 +5,10 @@ const express = require('express');
 const router = express.Router();
 const userData = require('../data/users');
 const { generateTokenPair, refreshAccessToken } = require('../utils/tokens');
+const { OAuth2Client } = require('google-auth-library');
+const config = require('../config');
+
+const googleClient = new OAuth2Client(config.google.clientId || undefined);
 
 /**
  * POST /login
@@ -69,6 +73,66 @@ router.post('/refresh', (req, res) => {
     message: 'Tokens refreshed',
     ...tokens,
   });
+});
+
+/**
+ * POST /google
+ * Body: { idToken }
+ *
+ * Mobile flow:
+ * - Client obtains a Google ID token via Google Sign-In
+ * - Send it here to exchange for API JWT tokens (access+refresh)
+ */
+router.post('/google', async (req, res) => {
+  const { idToken } = req.body;
+
+  if (!idToken) {
+    return res.status(400).json({
+      success: false,
+      message: 'idToken is required.',
+    });
+  }
+
+  if (!config.google.clientId) {
+    return res.status(500).json({
+      success: false,
+      message: 'Server Google client ID is not configured (GOOGLE_CLIENT_ID).',
+    });
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.google.clientId,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to fetch user email from Google token.',
+      });
+    }
+
+    const email = payload.email;
+    const name = payload.name || payload.given_name || '';
+    const googleSub = payload.sub;
+
+    const existing = userData.findByEmailAndAuthType(email, 'google');
+    const user = existing || userData.createGoogleUser({ email, name, googleSub });
+
+    const tokens = generateTokenPair(user);
+    return res.status(200).json({
+      success: true,
+      message: 'Google login successful',
+      ...tokens,
+    });
+  } catch (e) {
+    return res.status(400).json({
+      success: false,
+      message: 'Failed to verify Google token.',
+    });
+  }
 });
 
 module.exports = router;

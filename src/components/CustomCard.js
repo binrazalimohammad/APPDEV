@@ -3,19 +3,10 @@ import CustomButton from './CustomButton';
 
 const CustomCard = ({ label }) => {
   return (
-    <View
-      style={{
-        backgroundColor: '#e7cd78',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        borderRadius: 10,
-        marginBottom: 20,
-      }}
-    >
+    <View style={styles.card}>
       <Text style={styles.cardTitle}>{label}</Text>
       <CustomButton
-        label="pindota"
+        label="Display text"
         onPress={() => {
           Alert.alert('Hello, World!');
           Alert.alert('Hello, ahahhahaha!');
@@ -26,6 +17,14 @@ const CustomCard = ({ label }) => {
 };
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#dd0000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',

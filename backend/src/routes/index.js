@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
     success: true,
     message: 'Welcome to the REST API. Use POST /login to authenticate.',
     endpoints: {
-      public: ['GET /', 'POST /login', 'POST /refresh'],
+      public: ['GET /', 'POST /login', 'POST /refresh', 'POST /google'],
       protected: ['GET /users', 'POST /users'],
     },
   });

@@ -21,6 +21,7 @@ npm start
 | REFRESH_TOKEN_SECRET | Secret for refresh token signing |
 | ACCESS_TOKEN_EXPIRY | Access token TTL (e.g., 1h) |
 | REFRESH_TOKEN_EXPIRY | Refresh token TTL (e.g., 7d) |
+| GOOGLE_CLIENT_ID | Google OAuth Client ID used to verify `idToken` |
 
 ## Test Credentials
 
@@ -87,6 +88,27 @@ curl -X POST http://localhost:3000/refresh \
 {
   "success": true,
   "message": "Tokens refreshed",
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresIn": "1h"
+}
+```
+
+### 6. Google login (exchange `idToken` for API tokens)
+
+Obtain an `idToken` on the client (React Native) using Google Sign-In, then:
+
+```bash
+curl -X POST http://localhost:3000/google \
+  -H "Content-Type: application/json" \
+  -d '{"idToken":"YOUR_GOOGLE_ID_TOKEN"}'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Google login successful",
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
   "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
   "expiresIn": "1h"

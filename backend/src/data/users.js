@@ -11,11 +11,12 @@ const TEST_USER = {
   email: 'admin@example.com',
 };
 
-// In-memory array of users (TEST_USER + any added via POST /users)
+// In-memory array of users (demo only)
+// authType: 'password' | 'google'
 const users = [
-  { id: 1, username: 'admin', email: 'admin@example.com' },
-  { id: 2, username: 'john', email: 'john@example.com' },
-  { id: 3, username: 'jane', email: 'jane@example.com' },
+  { id: 1, username: 'admin', email: 'admin@example.com', authType: 'password' },
+  { id: 2, username: 'john', email: 'john@example.com', authType: 'password' },
+  { id: 3, username: 'jane', email: 'jane@example.com', authType: 'password' },
 ];
 
 let nextId = 4;
@@ -26,16 +27,39 @@ let nextId = 4;
  */
 function authenticate(username, password) {
   if (TEST_USER.username === username && TEST_USER.password === password) {
-    return { id: TEST_USER.id, username: TEST_USER.username, email: TEST_USER.email };
+    return {
+      id: TEST_USER.id,
+      username: TEST_USER.username,
+      email: TEST_USER.email,
+      authType: 'password',
+    };
   }
   return null;
+}
+
+function findByEmailAndAuthType(email, authType) {
+  if (!email || !authType) return null;
+  return users.find((u) => u.email === email && u.authType === authType) || null;
+}
+
+function createGoogleUser({ email, name, googleSub }) {
+  const username = name || (email ? email.split('@')[0] : `google_user_${nextId}`);
+  const newUser = {
+    id: nextId++,
+    username,
+    email,
+    authType: 'google',
+    googleSub,
+  };
+  users.push(newUser);
+  return newUser;
 }
 
 /**
  * Get all users (without sensitive fields)
  */
 function getAll() {
-  return users.map(({ id, username, email }) => ({ id, username, email }));
+  return users.map(({ id, username, email, authType }) => ({ id, username, email, authType }));
 }
 
 /**
@@ -44,13 +68,15 @@ function getAll() {
  */
 function add(userData) {
   const { username, email } = userData;
-  const newUser = { id: nextId++, username, email };
+  const newUser = { id: nextId++, username, email, authType: 'password' };
   users.push(newUser);
   return newUser;
 }
 
 module.exports = {
   authenticate,
+  findByEmailAndAuthType,
+  createGoogleUser,
   getAll,
   add,
 };
