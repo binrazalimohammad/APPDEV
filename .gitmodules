@@ -1,3 +1,6 @@
 [submodule "ybackend"]
 	path = ybackend
 	url = https://github.com/christiansojor/ybackend.git
+[submodule "casaclick"]
+	path = casaclick
+	url = https://github.com/binrazalimohammad/casaclick.git
