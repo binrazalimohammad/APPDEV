@@ -73,3 +73,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Local infra env/volumes
+infra/ybackend-mysql/.env
+infra/ybackend-mysql/data/
