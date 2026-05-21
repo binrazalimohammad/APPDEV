@@ -2,6 +2,11 @@
  * @format
  */
 
+jest.mock('../src/navigations', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';

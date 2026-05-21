@@ -1,0 +1,10 @@
+hwi_oauth_redirect:
+    resource: '@HWIOAuthBundle/Resources/config/routing/redirect.xml'
+    prefix: /connect
+
+hwi_oauth_connect:
+    resource: '@HWIOAuthBundle/Resources/config/routing/connect.xml'
+    prefix: /connect
+
+# Custom callback route name matches hwi_oauth.yaml -> redirect_route: auth_google_callback
+# The controller method is routed via PHP attributes on GoogleOAuthCallbackController.

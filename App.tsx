@@ -6,27 +6,44 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import SessionBootstrap from './src/components/SessionBootstrap';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import ErrorDisplay from './src/components/ErrorDisplay';
+import Navigation from './src/navigations';
+import { configureGoogleSignIn } from './src/services/googleSignIn';
+import { persistor, store } from './src/app/reducers';
+import { COLORS } from './src/utils';
 
-import Navigations from './src/navigations';
-import configureStore from './src/app/reducers';
-import rootSaga from './src/app/saga';
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+});
 
 const App = () => {
-  const { store, persistor, runSaga } = React.useMemo(() => configureStore(), []);
-
   React.useEffect(() => {
-    runSaga(rootSaga);
-  }, [runSaga]);
+    configureGoogleSignIn();
+  }, []);
 
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <View style={{ flex: 1 }}>
-          <Navigations />
-        </View>
+        <SafeAreaProvider>
+          <GestureHandlerRootView style={styles.root}>
+            <ErrorBoundary>
+              <SessionBootstrap>
+                <Navigation />
+                <ErrorDisplay />
+              </SessionBootstrap>
+            </ErrorBoundary>
+          </GestureHandlerRootView>
+        </SafeAreaProvider>
       </PersistGate>
     </Provider>
   );
