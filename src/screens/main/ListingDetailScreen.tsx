@@ -12,6 +12,7 @@ import {
 import type { StackScreenProps } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
+import { trackMobileActivity } from '../../app/api/activity';
 import { applyToListing, fetchListing, fetchListingsRevision } from '../../app/api/mobile';
 import { LISTINGS_SYNC_INTERVAL_MS } from '../../constants/sync';
 import { useRevisionPolling } from '../../hooks/useRevisionPolling';
@@ -145,7 +146,13 @@ const ListingDetailScreen = ({ route }: Props) => {
               onPress={async () => {
                 setApplying(true);
                 try {
-                  await applyToListing(token, id, message);
+                  const app = await applyToListing(token, id, message);
+                  void trackMobileActivity(
+                    'MOBILE_APPLY',
+                    `Listing #${id}: ${listing.name}`,
+                    `Application #${app.id}`,
+                    token,
+                  );
                   Alert.alert('Success', 'Application submitted — check My applications');
                   setMessage('');
                 } catch (e) {

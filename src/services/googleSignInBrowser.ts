@@ -5,17 +5,30 @@ import type { RegisterRole } from '../app/api/types';
 
 const OAUTH_DEEP_LINK = 'com.binrazali://oauth';
 
+function readQueryParam(query: string, key: string): string | undefined {
+  for (const part of query.split('&')) {
+    if (!part) {
+      continue;
+    }
+    const eq = part.indexOf('=');
+    const rawKey = eq >= 0 ? part.slice(0, eq) : part;
+    if (decodeURIComponent(rawKey) !== key) {
+      continue;
+    }
+    const rawValue = eq >= 0 ? part.slice(eq + 1) : '';
+    return decodeURIComponent(rawValue.replace(/\+/g, ' '));
+  }
+  return undefined;
+}
+
 function parseOAuthCallback(url: string): { token?: string; error?: string } {
   if (!url.startsWith(OAUTH_DEEP_LINK)) {
     return {};
   }
   const query = url.includes('?') ? url.slice(url.indexOf('?') + 1) : '';
-  const params = new URLSearchParams(query);
-  const token = params.get('token');
-  const error = params.get('error');
   return {
-    token: token ?? undefined,
-    error: error ?? undefined,
+    token: readQueryParam(query, 'token'),
+    error: readQueryParam(query, 'error'),
   };
 }
 

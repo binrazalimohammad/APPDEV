@@ -12,7 +12,7 @@ This guide deploys **`websitedev`** (Symfony + MySQL). The **React Native app** 
 |--------|----------------|
 | Symfony API + web admin | Railway (one service) |
 | MySQL database | Railway (MySQL plugin) |
-| BinRazali mobile app | Your PC / phone (APK), calls `https://your-app.up.railway.app` |
+| BinRazali mobile app | Your PC / phone (APK), calls `https://web-production-6bdab.up.railway.app` |
 
 ---
 
@@ -41,11 +41,19 @@ Do **not** commit secrets:
 
 ## Part 2 — Create the Railway project
 
-1. Go to [https://railway.app](https://railway.app) and sign in (GitHub is easiest).
-2. **New Project** → **Deploy from GitHub repo** → select your `websitedev` repo.
-3. Railway creates a service. Open it → **Settings**:
-   - **Root Directory:** leave empty if repo root *is* `websitedev`, else set `websitedev`.
-   - **Watch Paths:** optional, e.g. `/websitedev/**`.
+**Use this GitHub repo (API backend):**
+
+`https://github.com/binrazalimohammad/casaclick` — branch **`main`**
+
+**Do not** deploy `APPDEV` / BinRazali to Railway — that repo is only the React Native mobile app.
+
+1. Go to [https://railway.app](https://railway.app) and sign in with GitHub.
+2. **New Project** → **Deploy from GitHub repo** → select **`casaclick`**.
+3. Open the new service → **Settings**:
+   - **Source Repo:** `binrazalimohammad/casaclick`
+   - **Branch:** `main`
+   - **Root Directory:** leave **empty** (Symfony is at repo root)
+   - Railway reads **`railway.toml`** automatically for build/start
 
 ---
 
@@ -165,10 +173,11 @@ Mobile browser Google sign-in will use this host (no `127.0.0.1` on a physical p
 Edit `src/app/api/config.ts`:
 
 ```ts
-export const PRODUCTION_API_ORIGIN = 'https://YOUR-DOMAIN.up.railway.app';
+export const PRODUCTION_API_ORIGIN = 'https://web-production-6bdab.up.railway.app';
+export const USE_PRODUCTION_API = true; // Metro dev builds also hit Railway
 ```
 
-(Already wired: release builds use this when `PRODUCTION_API_ORIGIN` is set.)
+When `USE_PRODUCTION_API` is `true`, all API calls and Google browser OAuth use Railway. Set it to `false` to use `npm run server` locally again.
 
 ### 7.2 Connect mode on a real phone
 
@@ -181,11 +190,12 @@ For a **production** APK talking to Railway:
 ### 7.3 Build / run
 
 ```powershell
-# Dev still uses local server:
+# Local Symfony (only when USE_PRODUCTION_API = false):
 npm run server
 
-# Release APK (uses PRODUCTION_API_ORIGIN when not __DEV__):
-npm run android:release
+# Reload Metro after config change (USE_PRODUCTION_API = true → Railway):
+npm start
+npm run android
 ```
 
 Install the release APK, or run debug build after setting the Railway URL and rebuilding.

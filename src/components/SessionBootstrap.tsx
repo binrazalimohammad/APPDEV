@@ -8,6 +8,8 @@ import {
   notifySessionExpired,
   registerSessionExpiredHandler,
 } from '../app/api/sessionExpired';
+import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
+import { notificationWebSocket } from '../services/notificationWebSocket';
 import type { AppDispatch, RootState } from '../app/store';
 
 type Props = {
@@ -40,7 +42,11 @@ const SessionBootstrap = ({ children }: Props) => {
 
   useEffect(() => {
     if (!token || token === 'demo') {
+      notificationWebSocket.disconnect();
       return;
+    }
+    if (NOTIFICATION_WS_ENABLED) {
+      notificationWebSocket.connect(token);
     }
     fetchMobileProfile(token).catch(error => {
       if (isSessionExpiredError(error)) {

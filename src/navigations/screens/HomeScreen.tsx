@@ -86,7 +86,7 @@ const HomeScreen = () => {
       setApiError(
         e instanceof Error
           ? e.message
-          : 'Cannot load dashboard. Run npm run server on your PC.',
+          : 'Cannot load dashboard. Check Wi‑Fi and API connection.',
       );
     } finally {
       setLoading(false);

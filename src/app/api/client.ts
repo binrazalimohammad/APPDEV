@@ -14,6 +14,11 @@ export const JSON_HEADERS: Record<string, string> = {
 
 let preferredBaseUrl: string | null = null;
 
+/** Clear cached host so production Railway is not skipped after a prior local dev session. */
+export function resetPreferredApiOrigin(): void {
+  preferredBaseUrl = null;
+}
+
 /** Origin that last succeeded (e.g. http://192.168.1.5:8000) */
 export function getActiveApiOrigin(): string {
   return preferredBaseUrl ?? getBaseUrls()[0];
@@ -66,11 +71,6 @@ const getOrderedBaseUrls = (): string[] => {
     return baseUrls;
   }
   return [preferredBaseUrl, ...baseUrls.filter(url => url !== preferredBaseUrl)];
-};
-
-const hasJsonContentType = (response: Response): boolean => {
-  const ct = response.headers.get('content-type')?.toLowerCase() ?? '';
-  return ct.includes('application/json') || ct.includes('+json');
 };
 
 const readResponseData = async <T>(response: Response): Promise<T | undefined> => {

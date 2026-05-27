@@ -3,14 +3,17 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && react-native run-android",
+    "android": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && adb reverse tcp:8082 tcp:8082 && react-native run-android",
     "android:no-reverse": "react-native run-android",
-    "android:reverse": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000",
+    "android:reverse": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000 && adb reverse tcp:8082 tcp:8082",
     "server": "node server.js",
+    "ws:server": "node scripts/ws-notification-server.js",
+    "dev:all": "node scripts/dev-all.js",
     "android:usb": "npm run sync:pc-ip && npm run android:reverse && react-native run-android",
     "sync:pc-ip": "node scripts/sync-pc-ip.js",
     "android:sha1": "keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android",
     "google:redirect-uris": "node scripts/google-redirect-uris.js",
+    "railway:google-env": "powershell -ExecutionPolicy Bypass -File ../casaclick/scripts/set-railway-google-env.ps1",
     "google:setup": "node scripts/open-google-oauth-console.js",
     "casaclick:serve": "node server.js",
     "casaclick:serve:local": "cd ../../websitedev && php -S 127.0.0.1:8000 -t public",
@@ -19,6 +22,7 @@
     "api:ping": "node scripts/api-ping.js",
     "generate:icons": "node scripts/generate-android-icons.mjs",
     "android:release": "cd android && gradlew.bat assembleRelease",
+    "android:bundle": "cd android && gradlew.bat bundleRelease",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
@@ -39,7 +43,8 @@
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
-    "redux-saga": "^1.4.3"
+    "redux-saga": "^1.4.3",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

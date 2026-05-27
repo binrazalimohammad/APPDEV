@@ -4,7 +4,11 @@ When you develop with a **USB-connected phone**, mobile actions and the **websit
 
 ## How “real-time” works
 
-There is no WebSocket yet. Both sides **poll every 8 seconds** and refresh when data changes:
+**WebSocket (instant)** when running locally with `npm run dev:all` + `USE_PRODUCTION_API = false`:
+- Symfony saves a notification → pushes to `ws://127.0.0.1:8082` → mobile bell updates in ~1s
+- See `docs/WEBSOCKET.md`
+
+**HTTP polling (fallback)** — every 8 seconds when WebSocket is off (e.g. Railway production):
 
 | Where | What updates |
 |-------|----------------|

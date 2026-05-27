@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--
+  DFD Level 1 — printable poster styled like coursework reference diagram.
+  Open in Chrome → Print → Save as PDF (Landscape recommended).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DFD Level 1 — DFD Field Report System (Mobile Web)</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --accent: #0b4f6c;
+      --muted: #4a5568;
+      --line: #2d3748;
+      --entity: #e8f4fc;
+      --process: #fff8e6;
+      --store: #f0fff4;
+      --out: #f7f2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background: #fafafa;
+    }
+    header {
+      padding: 1rem 1.5rem 0.5rem;
+      text-align: center;
+      border-bottom: 2px solid var(--accent);
+      background: #fff;
+    }
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.35rem;
+      color: var(--accent);
+    }
+    header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0.75rem;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    .note {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    @media print {
+      body { background: #fff; }
+      header { border-bottom-color: #000; }
+      svg { box-shadow: none; border: none; }
+      .note { font-size: 9pt; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DFD Level 1 — DFD Field Report System (Mobile Web)</h1>
+    <p>
+      Poster layout mirrors your coursework diagram: actors → processes → stores → outputs.
+      Stack: React + Express + MySQL — see <code>DFD_LEVEL1_FIELD_REPORT_PROJECT.md</code>
+    </p>
+  </header>
+  <div class="wrap">
+    <svg viewBox="0 0 1500 920" role="img" aria-label="Level 1 data flow diagram for mobile field report stack">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#1a202c" />
+        </marker>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+
+      <text x="750" y="36" text-anchor="middle" font-size="15" fill="#0b4f6c" font-weight="700">
+        Level 1 DFD · Mobile web field-report prototype (BinRazali / dfd-mobile-web)
+      </text>
+
+      <text x="110" y="78" font-size="13" fill="#718096" font-weight="700">External entities</text>
+      <text x="430" y="78" font-size="13" fill="#718096" font-weight="700">Processes</text>
+      <text x="580" y="620" font-size="13" fill="#718096" font-weight="700">Data stores</text>
+      <text x="1110" y="78" font-size="13" fill="#718096" font-weight="700">Outputs / reports</text>
+
+      <rect x="40" y="110" width="200" height="64" rx="4" fill="#e8f4fc" stroke="#1a365d" stroke-width="2" filter="url(#shadow)"/>
+      <text x="140" y="138" text-anchor="middle" font-size="13" font-weight="700">Administrator</text>
+      <text x="140" y="158" text-anchor="middle" font-size="11" fill="#4a5568">RBAC • all corpus</text>
+
+      <rect x="40" y="320" width="200" height="64" rx="4" fill="#e8f4fc" stroke="#1a365d" stroke-width="2" filter="url(#shadow)"/>
+      <text x="140" y="348" text-anchor="middle" font-size="13" font-weight="700">Field Reporter</text>
+      <text x="140" y="368" text-anchor="middle" font-size="11" fill="#4a5568">Mobile JWT actor</text>
+
+      <rect x="40" y="528" width="200" height="64" rx="4" fill="#e8f4fc" stroke="#1a365d" stroke-width="2" filter="url(#shadow)"/>
+      <text x="140" y="556" text-anchor="middle" font-size="13" font-weight="700">Stakeholder</text>
+      <text x="140" y="574" text-anchor="middle" font-size="11" fill="#4a5568">PDF consumer</text>
+
+      <rect x="320" y="100" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="130" text-anchor="middle" font-size="12" font-weight="700">P3 · Authenticate (JWT)</text>
+
+      <rect x="320" y="172" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="202" text-anchor="middle" font-size="12" font-weight="700">P4 · Register user</text>
+
+      <rect x="320" y="244" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="274" text-anchor="middle" font-size="12" font-weight="700">P5 · Validate report input</text>
+
+      <rect x="320" y="316" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="346" text-anchor="middle" font-size="12" font-weight="700">P6 · Persist + audit</text>
+
+      <rect x="320" y="388" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="418" text-anchor="middle" font-size="12" font-weight="700">P7 · Update report</text>
+
+      <rect x="320" y="460" width="190" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="415" y="490" text-anchor="middle" font-size="12" font-weight="700">P8 · Delete report</text>
+
+      <rect x="540" y="100" width="200" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="640" y="130" text-anchor="middle" font-size="12" font-weight="700">P9 · RBAC retrieval</text>
+
+      <rect x="540" y="172" width="200" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="640" y="202" text-anchor="middle" font-size="12" font-weight="700">P10 · Dashboard agg</text>
+
+      <rect x="540" y="244" width="200" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="640" y="274" text-anchor="middle" font-size="12" font-weight="700">P11 · Structured JSON</text>
+
+      <rect x="540" y="316" width="200" height="52" rx="26" fill="#fff8e6" stroke="#744210" stroke-width="2"/>
+      <text x="640" y="346" text-anchor="middle" font-size="12" font-weight="700">P12 · Client PDF</text>
+
+      <rect x="540" y="410" width="200" height="44" rx="6" fill="#edf2f7" stroke="#a0aec0" stroke-dasharray="4 3"/>
+      <text x="640" y="437" text-anchor="middle" font-size="11" fill="#4a5568">AUTO · audit tuples on writes</text>
+
+      <g transform="translate(320,672)">
+        <rect x="0" y="0" width="160" height="70" rx="4" fill="#f0fff4" stroke="#22543d" stroke-width="2"/>
+        <text x="-18" y="42" font-size="18" fill="#22543d" font-weight="700">|</text>
+        <text x="82" y="40" text-anchor="middle" font-size="13" font-weight="700">D1 · Users</text>
+      </g>
+      <g transform="translate(520,672)">
+        <rect x="0" y="0" width="200" height="70" rx="4" fill="#f0fff4" stroke="#22543d" stroke-width="2"/>
+        <text x="-18" y="42" font-size="18" fill="#22543d" font-weight="700">|</text>
+        <text x="100" y="35" text-anchor="middle" font-size="13" font-weight="700">D2 · Field reports</text>
+        <text x="100" y="52" text-anchor="middle" font-size="10" fill="#4a5568">(records)</text>
+      </g>
+      <g transform="translate(756,672)">
+        <rect x="0" y="0" width="204" height="70" rx="4" fill="#f0fff4" stroke="#22543d" stroke-width="2"/>
+        <text x="-18" y="42" font-size="18" fill="#22543d" font-weight="700">|</text>
+        <text x="103" y="40" text-anchor="middle" font-size="13" font-weight="700">D3 · Activity logs</text>
+      </g>
+
+      <rect x="1080" y="100" width="380" height="420" rx="10" fill="#f7f2ff" stroke="#553c9a" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1270" y="132" text-anchor="middle" font-size="13" font-weight="700" fill="#44337a">System outputs</text>
+      <text x="1100" y="162" font-size="12">• Session + profile (P3 / P4)</text>
+      <text x="1100" y="190" font-size="12">• Scoped inventory + detail drill-down</text>
+      <text x="1100" y="218" font-size="12">• KPI cards + sorted priority table</text>
+      <text x="1100" y="246" font-size="12">• Tailored audit log slice API</text>
+      <text x="1100" y="274" font-size="12">• Offline PDF dossier (`jsPDF`)</text>
+      <text x="1100" y="302" font-size="12">• Validation/error messaging</text>
+      <text x="1100" y="356" font-size="11.5" fill="#4c51bf" font-weight="600">Coursesheet mapping</text>
+      <text x="1100" y="382" font-size="11">Same choreography as coursework poster:</text>
+      <text x="1100" y="404" font-size="11">Actor inputs → validations → datastore → analytic retrieval → dashboards/reports.</text>
+
+      <path d="M 240 142 L 320 142" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 240 352 L 312 352" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 240 360 C 298 380 296 274 319 274" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 415 296 L 415 316" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 430 582 L 480 746" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 530 586 L 600 744" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 620 672 L 638 252" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 740 200 L 1068 250" stroke="#1a202c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+      <path d="M 640 342 Q 920 620 148 594" stroke="#553c9a" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arrow)" fill="none"/>
+
+      <text x="268" y="132" font-size="10" fill="#2d3748">cred / JWT</text>
+      <text x="250" y="338" font-size="10" fill="#2d3748">HTTPS forms</text>
+      <text x="720" y="520" fill="#553c9a" font-size="11">PDF handshake</text>
+
+      <rect x="40" y="780" width="1420" height="120" rx="8" fill="#f7fafc" stroke="#cbd5e1"/>
+      <text x="70" y="812" font-size="12" font-weight="700" fill="#0b4f6c">Legend</text>
+      <text x="70" y="836" font-size="11">
+        Solid strokes: HTTPS/JSON payloads. Dashed violet: exported PDF artefacts for stakeholders outside the SPA.
+      </text>
+      <text x="70" y="858" font-size="11">
+        D-layer matches MySQL `users`, `records`, `activity_logs`. Poster pairs with coursework PNG for side-by-side rubric grading.
+      </text>
+      <text x="70" y="880" font-size="11" fill="#718096">
+        Print → Save as PDF. Companion spec: docs/DFD_LEVEL1_FIELD_REPORT_PROJECT.md • Reference coursework photo: docs/educational-dfd-level1-reference.png
+      </text>
+    </svg>
+    <p class="note">
+      <strong>Print tip:</strong> Chrome → Landscape → enable <strong>Background graphics</strong> for shaded regions.
+    </p>
+  </div>
+</body>
+</html>

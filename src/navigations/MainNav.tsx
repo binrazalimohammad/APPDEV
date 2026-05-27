@@ -1,6 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
+import HeaderUserActions from '../components/dashboard/HeaderUserActions';
 import TenantHeaderLeft from '../components/dashboard/TenantHeaderLeft';
 import TenantSidebarHost from '../components/dashboard/TenantSidebarHost';
 import type { RootState } from '../app/reducers';
@@ -50,6 +51,7 @@ const MainNav = () => {
         screenOptions={{
           ...baseScreenOptions,
           headerLeft: isTenant ? () => <TenantHeaderLeft /> : undefined,
+          headerRight: () => <HeaderUserActions />,
         }}
       >
         <Stack.Screen name={ROUTES.HOME} component={HomeScreen} options={{ title: 'Dashboard' }} />

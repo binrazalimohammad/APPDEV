@@ -7,6 +7,7 @@ export type SyncRevisionPayload = {
   listings?: string;
   applications?: string;
   payments?: string;
+  notifications?: number;
   serverTime?: string;
 };
 
@@ -21,6 +22,7 @@ export async function fetchSyncRevision(token: string): Promise<SyncRevisionPayl
     listings: body.listings,
     applications: body.applications,
     payments: body.payments,
+    notifications: typeof body.notifications === 'number' ? body.notifications : undefined,
     serverTime: body.serverTime,
   };
 }

@@ -17,6 +17,7 @@ export type GoogleAuthResponse = {
 type GoogleAuthPayload = ApiEnvelope & {
   token?: string;
   user?: GoogleAuthResponse['user'];
+  message?: string;
 };
 
 /** Exchange native Google Sign-In ID token for a Lexik JWT (POST /api/auth/google). */

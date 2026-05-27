@@ -1,20 +1,16 @@
 /**
  * Central API configuration — single source of truth for Symfony CasaClick.
  *
- * USB debugging (default): usb-adb → 127.0.0.1 + npm run android:reverse
- *   (required for Google browser sign-in — Google blocks private IPs like 192.168.x.x)
- *
- * Wi‑Fi / LAN only: set ANDROID_CONNECT_MODE = 'usb-lan' or 'wifi', then:
- *   npm run sync:pc-ip   (reads Windows ipconfig → DEV_API_PC_IP)
- *
- * Start backend: npm run server (Symfony on 0.0.0.0:8000)
+ * Production (default): USE_PRODUCTION_API → Railway HTTPS origin below.
+ * Local dev: set USE_PRODUCTION_API = false, then npm run server (0.0.0.0:8000)
+ *   USB: usb-adb + npm run android:reverse (Google OAuth needs 127.0.0.1, not LAN IP)
  */
 import { NativeModules, Platform } from 'react-native';
 
 export type AndroidConnectMode = 'emulator' | 'usb-adb' | 'usb-lan' | 'wifi';
 
 /** PC IPv4 — updated by: npm run sync:pc-ip */
-export const DEV_API_PC_IP = '192.168.254.100';
+export const DEV_API_PC_IP = '192.168.254.117';
 
 export const ANDROID_PC_LAN_HOST = DEV_API_PC_IP;
 export const ANDROID_WIFI_PC_HOST = DEV_API_PC_IP;
@@ -24,22 +20,23 @@ export const ANDROID_WIFI_PC_HOST = DEV_API_PC_IP;
  * usb-lan / wifi    → http://DEV_API_PC_IP:8000 (no browser Google on LAN IP)
  * emulator          → 10.0.2.2
  */
-export const ANDROID_CONNECT_MODE: AndroidConnectMode = 'usb-adb';
+export const ANDROID_CONNECT_MODE = 'usb-adb' as AndroidConnectMode;
 
 export const API_PORT = 8000;
 
 /**
- * Railway / production API (HTTPS, no port). Set after deploy — see docs/DEPLOYMENT_RAILWAY.md
- * Example: 'https://casaclick-api-production.up.railway.app'
- * Leave empty '' for local-only development.
+ * Railway / production API (HTTPS). See docs/DEPLOYMENT_RAILWAY.md
  */
-export const PRODUCTION_API_ORIGIN = '';
+export const PRODUCTION_API_ORIGIN = 'https://web-production-6bdab.up.railway.app';
+
+/** When true, app uses Railway even in Metro dev builds. Set false to use npm run server locally. */
+export const USE_PRODUCTION_API = true;
 
 const LOCAL_ONLY_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 
 function resolveApiOrigin(): string {
   const prod = PRODUCTION_API_ORIGIN.trim().replace(/\/$/, '');
-  if (!__DEV__ && prod.length > 0) {
+  if (prod.length > 0 && USE_PRODUCTION_API) {
     return prod;
   }
   return `http://${resolvePrimaryHost()}:${API_PORT}`;
@@ -98,18 +95,28 @@ export const getBaseUrls = (): string[] => {
   const urls: string[] = [];
   const seen = new Set<string>();
 
+  const addOrigin = (origin: string) => {
+    const normalized = origin.trim().replace(/\/$/, '');
+    if (!normalized || seen.has(normalized)) {
+      return;
+    }
+    seen.add(normalized);
+    urls.push(normalized);
+  };
+
+  const prod = PRODUCTION_API_ORIGIN.trim().replace(/\/$/, '');
+  if (USE_PRODUCTION_API && prod.length > 0) {
+    addOrigin(prod);
+    return urls;
+  }
+
   const add = (host: string) => {
     if (!host || isLocalHost(host)) {
       return;
     }
-    const origin = `http://${host}:${API_PORT}`;
-    if (!seen.has(origin)) {
-      seen.add(origin);
-      urls.push(origin);
-    }
+    addOrigin(`http://${host}:${API_PORT}`);
   };
 
-  // 1) PC LAN IP (phone on same network / USB tethering)
   add(DEV_API_PC_IP);
 
   // Do not add Metro bundler host — it is not the Symfony API and causes extra timeouts.
@@ -129,16 +136,7 @@ export const getBaseUrls = (): string[] => {
     add('localhost');
   }
 
-  const primary = resolveApiOrigin();
-  if (!seen.has(primary)) {
-    urls.unshift(primary);
-  } else {
-    const idx = urls.indexOf(primary);
-    if (idx > 0) {
-      urls.splice(idx, 1);
-      urls.unshift(primary);
-    }
-  }
+  addOrigin(resolveApiOrigin());
 
   return urls;
 };
@@ -212,12 +210,13 @@ export function buildMobileApiUrl(
   return `${origin}/api/mobile${sub}`;
 }
 
-export const USB_CONNECT_HINT =
-  ANDROID_CONNECT_MODE === 'usb-lan' || ANDROID_CONNECT_MODE === 'wifi'
+export const USB_CONNECT_HINT = USE_PRODUCTION_API
+  ? `API → ${API_BASE_URL} (Railway)`
+  : ANDROID_CONNECT_MODE === 'usb-lan' || ANDROID_CONNECT_MODE === 'wifi'
     ? `Phone → ${API_BASE_URL} (npm run sync:pc-ip)`
     : 'USB → npm run android:reverse';
 
 if (__DEV__) {
   console.log('[CasaClick API] Primary:', API_BASE_URL);
-  console.log('[CasaClick API] Fallback origins:', API_CONFIG.BASE_URLS);
+  console.log('[CasaClick API] Sync poll: /api/mobile/sync/revision every 8s');
 }

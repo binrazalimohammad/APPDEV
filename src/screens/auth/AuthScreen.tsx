@@ -60,12 +60,6 @@ const AuthScreen = () => {
           onPress={goToEmailLogin}
           disabled={isLoading}
         />
-
-        <View style={formStyles.demoPill}>
-          <Text style={formStyles.demoPillText}>
-            Demo: <Text style={formStyles.demoPillStrong}>tenant@example.com</Text> / tenant2222
-          </Text>
-        </View>
       </AuthButtonStack>
 
       <FormDivider label="or" />

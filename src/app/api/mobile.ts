@@ -126,6 +126,7 @@ export async function registerMobileUser({
 }): Promise<RegisterResponse> {
   type RegisterEnvelope = ApiEnvelope<MobileUserProfile> & {
     token?: string;
+    user?: MobileUserProfile;
     message?: string;
   };
   const envelope = await apiFetch<RegisterEnvelope>('/register', {

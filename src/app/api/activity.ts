@@ -6,7 +6,9 @@ export type MobileActivityAction =
   | 'MOBILE_LOGIN'
   | 'MOBILE_LOGOUT'
   | 'MOBILE_VIEW'
-  | 'MOBILE_REGISTER';
+  | 'MOBILE_REGISTER'
+  | 'MOBILE_APPLY'
+  | 'MOBILE_PAYMENT';
 
 const SCREEN_LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',

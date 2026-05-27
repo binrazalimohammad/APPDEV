@@ -13,6 +13,7 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 - **Course rubric (100 pts)** mapped to this repo — evidence, gaps, backlog: **`docs/FINAL_PROJECT_RUBRIC.md`**.
 - **API reference (routes + samples):** **`docs/API.md`**
 - **Defense demo script:** **`docs/DEMO_SCRIPT.md`**
+- **DFD Level 1 mobile web stack (React + Express + MySQL + PDF guide):** **`dfd-mobile-web/README.md`**
 - **Deploy / run checklist:** **`docs/DEPLOYMENT.md`**
 - **Deploy on Railway (step-by-step):** **`docs/DEPLOYMENT_RAILWAY.md`**
 - **Rubric quick checklist:** **`docs/RUBRIC_CHECKLIST.md`**

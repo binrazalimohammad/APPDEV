@@ -50,12 +50,6 @@ const LoginScreen = () => {
 
       {displayError ? <FormFlash message={displayError} variant="error" /> : null}
 
-      <View style={formStyles.demoPill}>
-        <Text style={formStyles.demoPillText}>
-          Demo: <Text style={formStyles.demoPillStrong}>tenant@example.com</Text> / tenant2222
-        </Text>
-      </View>
-
       <CustomTextInput
         label="Email address"
         icon="✉"

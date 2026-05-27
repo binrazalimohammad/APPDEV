@@ -177,6 +177,10 @@ function* userLogoutAsync(): SagaIterator {
       yield call(trackMobileActivity, 'MOBILE_LOGOUT', 'Signed out of CasaClick mobile', undefined, token);
     }
     yield call(signOutGoogle);
+    const { resetPreferredApiOrigin } = yield call(() => import('../api/client'));
+    yield call(resetPreferredApiOrigin);
+    const { persistor } = yield call(() => import('../reducers'));
+    yield call([persistor, persistor.purge]);
     yield put({ type: USER_LOGOUT_COMPLETED });
     yield put(clearError());
   } catch (error: unknown) {

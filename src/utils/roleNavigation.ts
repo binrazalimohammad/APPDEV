@@ -6,8 +6,6 @@ import { getPrimaryRole, type PrimaryRole } from './roles';
 /** Quick links hidden from customers (tenants) — admin/staff only on website. */
 const TENANT_HIDDEN_LINKS: DashboardLinkId[] = ['admin_area', 'my_listings'];
 
-const LANDLORD_ONLY_LINKS: DashboardLinkId[] = ['my_listings'];
-
 const TENANT_ALLOWED_LINKS: DashboardLinkId[] = [
   'listings',
   'applications',

@@ -1,0 +1,13 @@
+{
+  "name": "dfd-mobile-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo root for PDF guide generation tooling.",
+  "scripts": {
+    "guide": "node scripts/generate-user-guide-pdf.js",
+    "dfd-pdf": "node scripts/generate-dfd-diagram-pdf.js"
+  },
+  "devDependencies": {
+    "pdfkit": "^0.15.0"
+  }
+}

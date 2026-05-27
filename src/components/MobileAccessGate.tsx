@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from '../app/authSlice';
 import type { AppDispatch, RootState } from '../app/store';
 import CustomButton from './CustomButton';
-import { COLORS, FONT, RADIUS, SPACING } from '../utils';
+import { COLORS, FONT, SPACING } from '../utils';
 import { getPrimaryRole } from '../utils/roles';
 
 type Props = {

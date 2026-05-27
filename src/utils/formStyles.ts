@@ -75,26 +75,6 @@ export const formStyles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 15,
   },
-  demoPill: {
-    alignSelf: 'center',
-    backgroundColor: COLORS.backgroundSoft,
-    borderRadius: RADIUS.pill,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.line,
-  },
-  demoPillText: {
-    ...FONT.caption,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  demoPillStrong: {
-    color: COLORS.brown,
-    fontWeight: '600',
-  },
   hintText: {
     ...FONT.caption,
     color: COLORS.textMuted,

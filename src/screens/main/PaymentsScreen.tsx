@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { fetchPayments } from '../../app/api/mobile';
 import type { Payment } from '../../app/api/types';
 import type { RootState } from '../../app/store';
+import { useSyncRevisionPolling } from '../../hooks/useSyncRevisionPolling';
 import { COLORS, FONT, RADIUS, SPACING } from '../../utils';
 import { runSafe } from '../../utils/runSafe';
 
@@ -36,6 +37,19 @@ const PaymentsScreen = () => {
       setRefreshing(false);
     }
   }, [token]);
+
+  const reloadSilent = useCallback(async () => {
+    if (!token || token === 'demo') {
+      return;
+    }
+    try {
+      setItems(await fetchPayments(token));
+    } catch {
+      // keep cached list on poll failure
+    }
+  }, [token]);
+
+  useSyncRevisionPolling(token, reloadSilent, Boolean(token && token !== 'demo'));
 
   useFocusEffect(
     useCallback(() => {

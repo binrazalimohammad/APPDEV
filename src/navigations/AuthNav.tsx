@@ -31,6 +31,7 @@ const AuthNav = () => {
     <Stack.Navigator
       initialRouteName={ROUTES.AUTH}
       screenOptions={{
+        ...headerOptions,
         cardStyle: { backgroundColor: COLORS.background },
         gestureEnabled: true,
         animation: 'slide_from_right',

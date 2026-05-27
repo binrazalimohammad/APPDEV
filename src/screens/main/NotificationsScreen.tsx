@@ -11,65 +11,29 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import {
-  fetchNotifications,
-  markAllNotificationsRead,
-  markNotificationRead,
-} from '../../app/api/mobile';
-import type { NotificationItem } from '../../app/api/types';
 import type { RootState } from '../../app/store';
 import CustomButton from '../../components/CustomButton';
+import { useNotifications } from '../../hooks/useNotifications';
 import { COLORS, FONT, RADIUS, SPACING } from '../../utils';
-import { runSafe } from '../../utils/runSafe';
+import { formatTimeAgo } from '../../utils/formatTimeAgo';
+import { getNotificationVisual } from '../../utils/notificationMeta';
 
 const NotificationsScreen = () => {
   const token = useSelector((s: RootState) => s.auth.token);
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { items, loading, markRead, markAllRead, reload } = useNotifications(token);
 
   const load = useCallback(async () => {
-    if (!token || token === 'demo') {
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await fetchNotifications(token);
-      setItems(res.items);
-    } catch {
-      setItems([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [token]);
+    setRefreshing(true);
+    await reload();
+    setRefreshing(false);
+  }, [reload]);
 
   useFocusEffect(
     useCallback(() => {
-      setRefreshing(true);
-      runSafe(load());
-    }, [load]),
+      void reload();
+    }, [reload]),
   );
-
-  const markRead = async (id: number) => {
-    if (!token) return;
-    try {
-      await markNotificationRead(token, id);
-      runSafe(load());
-    } catch {
-      // ignore
-    }
-  };
-
-  const markAll = async () => {
-    if (!token) return;
-    try {
-      await markAllNotificationsRead(token);
-      runSafe(load());
-    } catch {
-      // ignore
-    }
-  };
 
   if (loading) {
     return (
@@ -83,7 +47,13 @@ const NotificationsScreen = () => {
     <View style={styles.screen}>
       <View style={styles.header}>
         <Text style={styles.hint}>Synced with website notifications</Text>
-        <CustomButton variant="outline" size="sm" label="Mark all read" onPress={markAll} fullWidth={false} />
+        <CustomButton
+          variant="outline"
+          size="sm"
+          label="Mark all read"
+          onPress={() => void markAllRead()}
+          fullWidth={false}
+        />
       </View>
       <FlatList
         data={items}
@@ -92,17 +62,28 @@ const NotificationsScreen = () => {
           <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={COLORS.primary} />
         }
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <Pressable
-            style={[styles.card, !item.isRead && styles.unread]}
-            onPress={() => markRead(Number(item.id))}
-          >
-            <Text style={styles.type}>{item.type}</Text>
-            <Text style={styles.message}>{item.message}</Text>
-            <Text style={styles.date}>{item.createdAt.slice(0, 16).replace('T', ' ')}</Text>
-          </Pressable>
-        )}
-        ListEmptyComponent={<Text style={styles.empty}>No notifications</Text>}
+        renderItem={({ item }) => {
+          const visual = getNotificationVisual(item.type);
+          return (
+            <Pressable
+              style={[styles.card, !item.isRead && styles.unread]}
+              onPress={() => void markRead(item.id)}
+            >
+              <View style={styles.cardRow}>
+                <Text style={styles.itemIcon}>{visual.icon}</Text>
+                <View style={styles.cardBody}>
+                  <View style={styles.typeRow}>
+                    <Text style={styles.type}>{visual.label}</Text>
+                    <View style={[styles.statusDot, { backgroundColor: visual.dotColor }]} />
+                  </View>
+                  <Text style={styles.message}>{item.message}</Text>
+                  <Text style={styles.date}>{formatTimeAgo(item.createdAt)}</Text>
+                </View>
+              </View>
+            </Pressable>
+          );
+        }}
+        ListEmptyComponent={<Text style={styles.empty}>No notifications yet</Text>}
       />
     </View>
   );
@@ -129,7 +110,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   unread: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryMuted },
+  cardRow: { flexDirection: 'row', gap: SPACING.sm },
+  itemIcon: { fontSize: 22, marginTop: 2 },
+  cardBody: { flex: 1 },
+  typeRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs },
   type: { ...FONT.caption, color: COLORS.primary, fontWeight: '600' },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
   message: { ...FONT.body, color: COLORS.text, marginTop: 4 },
   date: { ...FONT.caption, color: COLORS.textMuted, marginTop: 4 },
   empty: { textAlign: 'center', color: COLORS.textMuted, padding: SPACING.xl },
