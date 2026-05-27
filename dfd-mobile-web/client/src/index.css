@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-first typography and touch ergonomics — Actor Interface (Process 1 entry). */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+/* Large tap targets: no hover-only critical actions (touch-friendly minimum). */
+@layer utilities {
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}

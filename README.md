@@ -1,5 +1,31 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+## Google Sign-In + Redux Toolkit + Symfony
+
+- Configure **Web OAuth client ID** in `src/config/google.ts` (`GOOGLE_WEB_CLIENT_ID`).
+- Auth state: **`src/app/authSlice.ts`**, **`src/app/store.ts`** (Redux Persist uses `AsyncStorage` only inside the store setup).
+- Entry flow: **`src/screens/auth/AuthScreen.tsx`** (Google) → optional email **`LoginScreen`**.
+- Symfony HWI + JWT templates to copy into **casaclick**: `extras/symfony-casaclick-google/` (see `README.md` there).
+- Full coursework checklist: **`docs/MIDTERM_CHECKLIST.md`**.
+- **Course rubric (100 pts)** — evidence, gaps, backlog vs your criteria: **`docs/FINAL_PROJECT_RUBRIC.md`**.
+- **CasaClick API sync** (what changed on the website vs this app): **`docs/CASACLICK_MOBILE_SYNC.md`**.
+- **CasaClick backend** (cloned next to this repo): `C:\Users\Maligalig\APP DEV\casaclick` — run `npm run casaclick:serve` from BinRazali.
+- **Course rubric (100 pts)** mapped to this repo — evidence, gaps, backlog: **`docs/FINAL_PROJECT_RUBRIC.md`**.
+- **API reference (routes + samples):** **`docs/API.md`**
+- **Defense demo script:** **`docs/DEMO_SCRIPT.md`**
+- **DFD Level 1 mobile web stack (React + Express + MySQL + PDF guide):** **`dfd-mobile-web/README.md`**
+- **Deploy / run checklist:** **`docs/DEPLOYMENT.md`**
+- **Deploy on Railway (step-by-step):** **`docs/DEPLOYMENT_RAILWAY.md`**
+- **Rubric quick checklist:** **`docs/RUBRIC_CHECKLIST.md`**
+
+### Android release APK (Firebase Test Lab)
+
+```powershell
+npm run android:release
+```
+
+APK path: `android/app/build/outputs/apk/release/app-release.apk` (then upload in Firebase Console → Test Lab).
+
 # Getting Started
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
