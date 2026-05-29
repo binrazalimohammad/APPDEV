@@ -24,7 +24,7 @@ export function showNotificationPopup(item: NotificationPopupInput): void {
   const now = Date.now();
 
   if (item.relatedId != null) {
-    const relKey = `rel:${item.relatedId}`;
+    const relKey = `rel:${item.type ?? ''}:${item.relatedId}`;
     const relLast = recentKeys.get(relKey);
     if (relLast != null && now - relLast < RELATED_DEDUPE_MS) {
       return;

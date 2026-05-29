@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
@@ -8,7 +9,8 @@ import {
 } from '../app/api/mobile';
 import { fetchSyncRevision } from '../app/api/sync';
 import type { NotificationItem } from '../app/api/types';
-import { LISTINGS_SYNC_INTERVAL_MS } from '../constants/sync';
+import { NOTIFICATION_POLL_INTERVAL_MS } from '../constants/sync';
+import { subscribeNotificationReload } from '../services/notificationSync';
 import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
 import { notificationWebSocket } from '../services/notificationWebSocket';
 import type { OrderUpdatedPayload } from '../services/orderStatusEvents';
@@ -182,21 +184,37 @@ export function useNotifications(
     if (!enabled || !token || token === 'demo') {
       return;
     }
-    // Keep polling when WebSocket is up — Symfony may not broadcast if WS_BROADCAST_URL is unset on Railway.
+    // Always reload notifications — do not rely on sync revision or WebSocket alone.
     try {
       const sync = await fetchSyncRevision(token);
-      if (lastSyncRevision.current === null) {
-        lastSyncRevision.current = sync.revision;
-        await load(true);
-        return;
-      }
-      if (sync.revision !== lastSyncRevision.current) {
-        lastSyncRevision.current = sync.revision;
-        await load(true);
-      }
+      lastSyncRevision.current = sync.revision;
     } catch {
-      await load(true);
+      // revision optional
     }
+    await load(true);
+  }, [enabled, load, token]);
+
+  useEffect(() => {
+    if (!enabled || !token || token === 'demo') {
+      return undefined;
+    }
+    void load(true);
+    return subscribeNotificationReload(() => {
+      void load(true);
+    });
+  }, [enabled, load, token]);
+
+  useEffect(() => {
+    if (!enabled || !token || token === 'demo') {
+      return undefined;
+    }
+    const onAppState = (state: AppStateStatus) => {
+      if (state === 'active') {
+        void load(true);
+      }
+    };
+    const sub = AppState.addEventListener('change', onAppState);
+    return () => sub.remove();
   }, [enabled, load, token]);
 
   useFocusEffect(
@@ -210,7 +228,7 @@ export function useNotifications(
       }
       const id = setInterval(() => {
         void pollForChanges();
-      }, LISTINGS_SYNC_INTERVAL_MS);
+      }, NOTIFICATION_POLL_INTERVAL_MS);
       return () => clearInterval(id);
     }, [enabled, poll, pollForChanges, token]),
   );

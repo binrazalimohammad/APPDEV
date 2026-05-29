@@ -19,6 +19,7 @@ import {
   teardownPushNotifications,
 } from '../services/pushNotifications';
 import type { AppDispatch, RootState } from '../app/store';
+import NotificationBackgroundSync from './NotificationBackgroundSync';
 
 type Props = {
   children: ReactNode;
@@ -97,7 +98,12 @@ const SessionBootstrap = ({ children }: Props) => {
     };
   }, [token]);
 
-  return children;
+  return (
+    <>
+      <NotificationBackgroundSync />
+      {children}
+    </>
+  );
 };
 
 export default SessionBootstrap;

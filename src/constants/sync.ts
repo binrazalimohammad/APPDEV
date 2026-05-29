@@ -1,6 +1,9 @@
 /** How often the app checks the server when background sync is enabled. */
 export const LISTINGS_SYNC_INTERVAL_MS = 8000;
 
+/** Notification bell + tenant status alerts (landlord approve/reject). */
+export const NOTIFICATION_POLL_INTERVAL_MS = 5000;
+
 /**
  * When true, open screens poll the API every ~8s and reload data when the server revision changes.
  * When false, lists/dashboard only update on pull-to-refresh or Socket.IO (notifications/orders).
