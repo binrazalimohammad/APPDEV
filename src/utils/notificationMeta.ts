@@ -23,6 +23,7 @@ const TYPE_MAP: Record<string, NotificationVisual> = {
   payment_rejected: { icon: '💳', dotColor: COLORS.error, label: 'Payment' },
   contract_update: { icon: '📄', dotColor: COLORS.primaryMid, label: 'Contract' },
   onboarding_update: { icon: '✅', dotColor: COLORS.success, label: 'Onboarding' },
+  order_update: { icon: '📦', dotColor: COLORS.primary, label: 'Order update' },
 };
 
 const DEFAULT_VISUAL: NotificationVisual = {

@@ -1,7 +1,8 @@
-import { AppState, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import notifee, { AndroidImportance, type Notification } from '@notifee/react-native';
 
-const ANDROID_CHANNEL_ID = 'casaclick-notifications';
+/** HIGH importance → heads-up banner on Android when app is open or backgrounded. */
+const ANDROID_CHANNEL_ID = 'casaclick-alerts';
 
 let initialized = false;
 
@@ -21,8 +22,9 @@ export async function initLocalNotifications(): Promise<void> {
     try {
       await notifee.createChannel({
         id: ANDROID_CHANNEL_ID,
-        name: 'CasaClick Notifications',
-        importance: AndroidImportance.DEFAULT,
+        name: 'CasaClick Alerts',
+        importance: AndroidImportance.HIGH,
+        sound: 'default',
       });
     } catch {
       // ignore channel creation failure
@@ -34,13 +36,9 @@ export async function showLocalNotification(input: {
   title: string;
   body: string;
   data?: Record<string, string>;
-  /** FCM / background: always show system notification */
+  /** @deprecated All notifications show as system pop-ups; kept for call-site compatibility. */
   force?: boolean;
 }): Promise<void> {
-  if (!input.force && AppState.currentState === 'active') {
-    return;
-  }
-
   const notification: Notification = {
     title: input.title,
     body: input.body,

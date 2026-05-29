@@ -34,12 +34,14 @@ export const USE_PRODUCTION_API = true;
 
 /**
  * Railway Socket.IO service public URL (HTTPS, no trailing slash).
- * Deploy: services/realtime-notification → paste generated domain here.
- * See docs/DEPLOYMENT_RAILWAY_REALTIME.md and docs/ORDER_NOTIFICATIONS.md
+ * Run: npm run sync:realtime  (after Railway realtime Networking domain exists)
+ * Or set manually / leave empty — app also loads URL from GET /api/mobile/realtime-config.
+ * See docs/DEPLOYMENT_RAILWAY_REALTIME.md
  */
-export const PRODUCTION_REALTIME_ORIGIN = '';
+export const PRODUCTION_REALTIME_ORIGIN =
+  'https://appdev-production-1e32.up.railway.app';
 
-/** True when production realtime URL is set (not the Symfony API host). */
+/** @deprecated Use isEffectiveRealtimeConfigured() from services/realtimeConfig */
 export function isProductionRealtimeConfigured(): boolean {
   const url = PRODUCTION_REALTIME_ORIGIN.trim().replace(/\/$/, '');
   const api = PRODUCTION_API_ORIGIN.trim().replace(/\/$/, '');

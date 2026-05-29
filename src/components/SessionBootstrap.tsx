@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchMobileProfile } from '../app/api/auth';
+import { fetchRealtimeConfig } from '../app/api/mobile';
 import { probeApiConnection } from '../app/api/health';
 import {
   isSessionExpiredError,
@@ -10,6 +11,7 @@ import {
 } from '../app/api/sessionExpired';
 import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
 import { notificationWebSocket } from '../services/notificationWebSocket';
+import { setRuntimeRealtimeOrigin } from '../services/realtimeConfig';
 import { initLocalNotifications } from '../services/localNotifications';
 import {
   attachForegroundMessageHandler,
@@ -56,12 +58,29 @@ const SessionBootstrap = ({ children }: Props) => {
       return undefined;
     }
 
-    void setupPushNotifications(token);
-    const detachForeground = attachForegroundMessageHandler();
+    let cancelled = false;
 
-    if (NOTIFICATION_WS_ENABLED) {
-      notificationWebSocket.connect(token);
-    }
+    void (async () => {
+      await setupPushNotifications(token);
+      if (cancelled) {
+        return;
+      }
+
+      const realtimeOrigin = await fetchRealtimeConfig();
+      if (cancelled) {
+        return;
+      }
+      setRuntimeRealtimeOrigin(realtimeOrigin);
+      if (__DEV__ && realtimeOrigin) {
+        console.log(`[CasaClick] Realtime: ${realtimeOrigin}`);
+      }
+
+      if (NOTIFICATION_WS_ENABLED) {
+        notificationWebSocket.connect(token);
+      }
+    })();
+
+    const detachForeground = attachForegroundMessageHandler();
 
     fetchMobileProfile(token).catch(error => {
       if (isSessionExpiredError(error)) {
@@ -70,8 +89,10 @@ const SessionBootstrap = ({ children }: Props) => {
     });
 
     return () => {
+      cancelled = true;
       detachForeground();
       notificationWebSocket.disconnect();
+      setRuntimeRealtimeOrigin(null);
       void teardownPushNotifications(token);
     };
   }, [token]);

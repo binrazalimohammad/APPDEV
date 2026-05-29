@@ -11,8 +11,8 @@ import type { NotificationItem } from '../app/api/types';
 import { LISTINGS_SYNC_INTERVAL_MS } from '../constants/sync';
 import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
 import { notificationWebSocket } from '../services/notificationWebSocket';
-import { showLocalNotification } from '../services/localNotifications';
 import type { OrderUpdatedPayload } from '../services/orderStatusEvents';
+import { showNotificationPopup } from '../utils/showNotificationPopup';
 
 type UseNotificationsOptions = {
   enabled?: boolean;
@@ -30,19 +30,49 @@ export function useNotifications(
   const [wsConnected, setWsConnected] = useState(false);
   const lastFingerprint = useRef<string>('');
   const lastSyncRevision = useRef<string | null>(null);
+  const knownNotificationIds = useRef<Set<number | string>>(new Set());
+  const notificationBaselineReady = useRef(false);
 
-  const applyResult = useCallback((next: NotificationItem[], unread: number) => {
-    const fingerprint = `${unread}:${next.map(n => `${n.id}:${n.isRead}`).join('|')}`;
-    if (fingerprint !== lastFingerprint.current) {
-      lastFingerprint.current = fingerprint;
-      setItems(next);
-      setUnreadCount(unread);
+  const notifyNewItems = useCallback((next: NotificationItem[]) => {
+    if (!notificationBaselineReady.current) {
+      for (const item of next) {
+        if (item.id != null) {
+          knownNotificationIds.current.add(item.id);
+        }
+      }
+      notificationBaselineReady.current = true;
+      return;
+    }
+
+    for (const item of next) {
+      if (item.id == null || knownNotificationIds.current.has(item.id)) {
+        continue;
+      }
+      knownNotificationIds.current.add(item.id);
+      if (!item.isRead) {
+        showNotificationPopup(item);
+      }
     }
   }, []);
+
+  const applyResult = useCallback(
+    (next: NotificationItem[], unread: number) => {
+      notifyNewItems(next);
+      const fingerprint = `${unread}:${next.map(n => `${n.id}:${n.isRead}`).join('|')}`;
+      if (fingerprint !== lastFingerprint.current) {
+        lastFingerprint.current = fingerprint;
+        setItems(next);
+        setUnreadCount(unread);
+      }
+    },
+    [notifyNewItems],
+  );
 
   const load = useCallback(
     async (silent = false) => {
       if (!enabled || !token || token === 'demo') {
+        knownNotificationIds.current.clear();
+        notificationBaselineReady.current = false;
         setItems([]);
         setUnreadCount(0);
         setLoading(false);
@@ -107,17 +137,7 @@ export function useNotifications(
       });
       if (!item.isRead) {
         setUnreadCount(prev => prev + 1);
-        void showLocalNotification({
-          title: item.type === 'order_update' ? 'Order update' : 'CasaClick',
-          body: item.message,
-          data: {
-            notificationId: String(item.id),
-            type: item.type ?? '',
-            relatedId: item.relatedId != null ? String(item.relatedId) : '',
-          },
-          // Order screens show Alert via useOrderStatusListener; bell still updates here.
-          force: false,
-        });
+        showNotificationPopup(item);
       }
       lastSyncRevision.current = null;
     },
@@ -150,9 +170,7 @@ export function useNotifications(
     if (!enabled || !token || token === 'demo') {
       return;
     }
-    if (wsConnected) {
-      return;
-    }
+    // Keep polling when WebSocket is up — Symfony may not broadcast if WS_BROADCAST_URL is unset on Railway.
     try {
       const sync = await fetchSyncRevision(token);
       if (lastSyncRevision.current === null) {
@@ -167,7 +185,7 @@ export function useNotifications(
     } catch {
       await load(true);
     }
-  }, [enabled, load, token, wsConnected]);
+  }, [enabled, load, token]);
 
   useFocusEffect(
     useCallback(() => {

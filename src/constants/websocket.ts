@@ -1,12 +1,10 @@
 import { Platform } from 'react-native';
 
+import { USE_PRODUCTION_API, USE_REALTIME_NOTIFICATIONS, resolvePrimaryHost } from '../app/api/config';
 import {
-  isProductionRealtimeConfigured,
-  PRODUCTION_REALTIME_ORIGIN,
-  USE_PRODUCTION_API,
-  USE_REALTIME_NOTIFICATIONS,
-  resolvePrimaryHost,
-} from '../app/api/config';
+  getEffectiveRealtimeOrigin,
+  isEffectiveRealtimeConfigured,
+} from '../services/realtimeConfig';
 
 /** Socket.IO port for notifications (scripts/socketio-notification-server.js) */
 export const NOTIFICATION_WS_PORT = 8082;
@@ -21,8 +19,8 @@ export function getNotificationWebSocketUrl(): string | null {
 
   // Production: Socket.IO base URL only — client sets path: '/notifications' separately.
   if (USE_PRODUCTION_API) {
-    const origin = String(PRODUCTION_REALTIME_ORIGIN || '').trim().replace(/\/$/, '');
-    if (!origin || !isProductionRealtimeConfigured()) {
+    const origin = getEffectiveRealtimeOrigin();
+    if (!origin || !isEffectiveRealtimeConfigured()) {
       return null;
     }
     if (origin.startsWith('https://')) {
