@@ -1,7 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { LISTINGS_SYNC_INTERVAL_MS } from '../constants/sync';
+import {
+  ENABLE_BACKGROUND_SYNC_POLLING,
+  LISTINGS_SYNC_INTERVAL_MS,
+} from '../constants/sync';
 
 export type ListingsRevision = {
   revision: string;
@@ -19,12 +22,13 @@ export function useRevisionPolling(
   enabled = true,
   intervalMs = LISTINGS_SYNC_INTERVAL_MS,
 ) {
+  const active = enabled && ENABLE_BACKGROUND_SYNC_POLLING;
   const lastRevision = useRef<string | null>(null);
   const onChangedRef = useRef(onChanged);
   onChangedRef.current = onChanged;
 
   const poll = useCallback(async () => {
-    if (!enabled) {
+    if (!active) {
       return;
     }
     try {
@@ -40,7 +44,7 @@ export function useRevisionPolling(
     } catch {
       // Silent — user can still pull to refresh
     }
-  }, [enabled, fetchRevision]);
+  }, [active, fetchRevision]);
 
   const resetRevision = useCallback(() => {
     lastRevision.current = null;
@@ -48,7 +52,7 @@ export function useRevisionPolling(
 
   useFocusEffect(
     useCallback(() => {
-      if (!enabled) {
+      if (!active) {
         return undefined;
       }
       void poll().catch(() => undefined);
@@ -56,7 +60,7 @@ export function useRevisionPolling(
         void poll().catch(() => undefined);
       }, intervalMs);
       return () => clearInterval(id);
-    }, [enabled, poll, intervalMs]),
+    }, [active, poll, intervalMs]),
   );
 
   return { resetRevision, pollNow: poll };
