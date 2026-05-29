@@ -10,6 +10,12 @@ import {
 } from '../app/api/sessionExpired';
 import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
 import { notificationWebSocket } from '../services/notificationWebSocket';
+import { initLocalNotifications } from '../services/localNotifications';
+import {
+  attachForegroundMessageHandler,
+  setupPushNotifications,
+  teardownPushNotifications,
+} from '../services/pushNotifications';
 import type { AppDispatch, RootState } from '../app/store';
 
 type Props = {
@@ -24,6 +30,10 @@ const SessionBootstrap = ({ children }: Props) => {
   useEffect(() => {
     registerSessionExpiredHandler(dispatch);
   }, [dispatch]);
+
+  useEffect(() => {
+    void initLocalNotifications();
+  }, []);
 
   useEffect(() => {
     if (!__DEV__) {
@@ -43,16 +53,27 @@ const SessionBootstrap = ({ children }: Props) => {
   useEffect(() => {
     if (!token || token === 'demo') {
       notificationWebSocket.disconnect();
-      return;
+      return undefined;
     }
+
+    void setupPushNotifications(token);
+    const detachForeground = attachForegroundMessageHandler();
+
     if (NOTIFICATION_WS_ENABLED) {
       notificationWebSocket.connect(token);
     }
+
     fetchMobileProfile(token).catch(error => {
       if (isSessionExpiredError(error)) {
         notifySessionExpired();
       }
     });
+
+    return () => {
+      detachForeground();
+      notificationWebSocket.disconnect();
+      void teardownPushNotifications(token);
+    };
   }, [token]);
 
   return children;

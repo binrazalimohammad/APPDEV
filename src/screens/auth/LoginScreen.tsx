@@ -15,6 +15,7 @@ import GoogleMark from '../../components/icons/GoogleMark';
 import { clearAuthError, userGoogleLogin, userLogin } from '../../app/authSlice';
 import type { AppDispatch, RootState } from '../../app/store';
 import type { AuthStackParamList } from '../../navigation/types';
+import { isGoogleSignInConfigured } from '../../services/googleSignIn';
 import { formStyles } from '../../utils/formStyles';
 import { ROUTES, SPACING } from '../../utils';
 
@@ -40,6 +41,14 @@ const LoginScreen = () => {
       return;
     }
     dispatch(userLogin({ email: emailAdd.trim(), password }));
+  };
+
+  const handleGoogleLogin = () => {
+    if (!isGoogleSignInConfigured()) {
+      Alert.alert('Google sign-in not set up', 'Set GOOGLE_WEB_CLIENT_ID in src/config/google.ts');
+      return;
+    }
+    dispatch(userGoogleLogin({ role: 'ROLE_TENANT' }));
   };
 
   return (
@@ -89,7 +98,7 @@ const LoginScreen = () => {
         variant="google"
         label="Continue with Google"
         icon={<GoogleMark size={20} />}
-        onPress={() => dispatch(userGoogleLogin({ role: 'ROLE_TENANT' }))}
+        onPress={handleGoogleLogin}
         disabled={isLoading}
       />
 

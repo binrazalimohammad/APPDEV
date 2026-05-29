@@ -32,6 +32,23 @@ export const PRODUCTION_API_ORIGIN = 'https://web-production-6bdab.up.railway.ap
 /** When true, app uses Railway even in Metro dev builds. Set false to use npm run server locally. */
 export const USE_PRODUCTION_API = true;
 
+/**
+ * Railway Socket.IO service public URL (HTTPS, no trailing slash).
+ * Deploy: services/realtime-notification → paste generated domain here.
+ * See docs/DEPLOYMENT_RAILWAY_REALTIME.md and docs/ORDER_NOTIFICATIONS.md
+ */
+export const PRODUCTION_REALTIME_ORIGIN = '';
+
+/** True when production realtime URL is set (not the Symfony API host). */
+export function isProductionRealtimeConfigured(): boolean {
+  const url = PRODUCTION_REALTIME_ORIGIN.trim().replace(/\/$/, '');
+  const api = PRODUCTION_API_ORIGIN.trim().replace(/\/$/, '');
+  return url.length > 0 && url !== api;
+}
+
+/** Enable realtime notifications in release builds. */
+export const USE_REALTIME_NOTIFICATIONS = true;
+
 const LOCAL_ONLY_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 
 function resolveApiOrigin(): string {
@@ -167,6 +184,7 @@ export const API_CONFIG = {
     PAYMENTS: '/api/mobile/payments',
     DASHBOARD: '/api/mobile/dashboard',
     NOTIFICATIONS: '/api/mobile/notifications',
+    PUSH_TOKEN: '/api/mobile/push-token',
     SYNC_REVISION: '/api/mobile/sync/revision',
     APPLICATIONS_REVISION: '/api/mobile/applications/revision',
     MY_LISTINGS: '/api/mobile/my-listings',

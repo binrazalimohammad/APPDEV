@@ -2,21 +2,26 @@ import type { NotificationItem } from '../app/api/types';
 import {
   getNotificationWebSocketUrl,
   NOTIFICATION_WS_ENABLED,
-  type WebSocketNotificationMessage,
 } from '../constants/websocket';
+import { io, type Socket } from 'socket.io-client';
+
+import { dispatchOrderUpdated, type OrderUpdatedPayload } from './orderStatusEvents';
+import { getFcmToken } from './pushNotifications';
 
 type NotificationHandler = (item: NotificationItem) => void;
+type OrderUpdatedHandler = (payload: OrderUpdatedPayload) => void;
 type ConnectionHandler = (connected: boolean) => void;
 
 const RECONNECT_MS = 4000;
 const PING_MS = 30000;
 
 class NotificationWebSocketClient {
-  private ws: WebSocket | null = null;
+  private socket: Socket | null = null;
   private token: string | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private pingTimer: ReturnType<typeof setInterval> | null = null;
   private onNotification: NotificationHandler | null = null;
+  private onOrderUpdated: OrderUpdatedHandler | null = null;
   private onConnection: ConnectionHandler | null = null;
   private disposed = false;
 
@@ -31,90 +36,119 @@ class NotificationWebSocketClient {
       return;
     }
 
-    if (this.token === token && this.ws?.readyState === WebSocket.OPEN) {
+    if (this.token === token && this.socket?.connected) {
       return;
     }
 
     this.token = token;
     this.disposed = false;
-    this.open(url);
+    void this.open(url);
   }
 
   disconnect() {
     this.disposed = true;
     this.token = null;
     this.clearTimers();
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
+    this.socket?.disconnect();
+    this.socket = null;
     this.onConnection?.(false);
   }
 
   setHandlers(handlers: {
     onNotification?: NotificationHandler;
+    onOrderUpdated?: OrderUpdatedHandler;
     onConnection?: ConnectionHandler;
   }) {
     this.onNotification = handlers.onNotification ?? null;
+    this.onOrderUpdated = handlers.onOrderUpdated ?? null;
     this.onConnection = handlers.onConnection ?? null;
   }
 
-  private open(url: string) {
+  private async open(url: string) {
     this.clearTimers();
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
+    this.socket?.disconnect();
+    this.socket = null;
 
     try {
-      this.ws = new WebSocket(url);
+      const httpUrl = url.replace(/^ws:\/\//i, 'http://').replace(/^wss:\/\//i, 'https://');
+      const fcmToken = await getFcmToken();
+      this.socket = io(httpUrl, {
+        path: '/notifications',
+        transports: ['websocket'],
+        auth: { token: this.token, fcmToken: fcmToken ?? undefined },
+        reconnection: false,
+      });
     } catch {
       this.scheduleReconnect();
       return;
     }
 
-    const ws = this.ws;
+    const socket = this.socket;
+    if (!socket) {
+      return;
+    }
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'auth', token: this.token }));
-    };
+    socket.on('connect', () => {
+      // wait for auth_ok before marking connected
+    });
 
-    ws.onmessage = event => {
-      try {
-        const msg = JSON.parse(String(event.data)) as WebSocketNotificationMessage & {
-          type: string;
-        };
-        if (msg.type === 'auth_ok') {
-          this.onConnection?.(true);
-          this.startPing();
-          return;
-        }
-        if (msg.type === 'notification' && msg.data) {
-          this.onNotification?.(msg.data as NotificationItem);
-        }
-      } catch {
-        // ignore malformed frames
+    socket.on('auth_ok', () => {
+      this.onConnection?.(true);
+      this.startPing();
+    });
+
+    socket.on('notification', payload => {
+      const item = payload?.data;
+      if (item) {
+        this.onNotification?.(item as NotificationItem);
       }
-    };
+      // order_updated is also wrapped in notification payload from Symfony
+      if (payload?.event === 'order_updated' && payload?.order) {
+        this.handleOrderUpdated(payload.order);
+      }
+    });
 
-    ws.onerror = () => {
+    socket.on('order_updated', raw => {
+      this.handleOrderUpdated(raw);
+    });
+
+    socket.on('connect_error', () => {
       this.onConnection?.(false);
-    };
+    });
 
-    ws.onclose = () => {
+    socket.on('disconnect', () => {
       this.onConnection?.(false);
       this.clearPing();
       if (!this.disposed && this.token) {
         this.scheduleReconnect();
       }
+    });
+  }
+
+  private handleOrderUpdated(raw: Record<string, unknown>) {
+    const orderId = Number(raw.order_id ?? raw.orderId);
+    const customerId = Number(raw.customer_id ?? raw.customerId);
+    const status = String(raw.status ?? '');
+    if (!orderId || !status) {
+      return;
+    }
+    const payload: OrderUpdatedPayload = {
+      order_id: orderId,
+      customer_id: customerId,
+      status,
+      message: String(raw.message ?? ''),
+      timestamp: String(raw.timestamp ?? new Date().toISOString()),
+      statusLabel: raw.statusLabel != null ? String(raw.statusLabel) : undefined,
     };
+    this.onOrderUpdated?.(payload);
+    dispatchOrderUpdated(payload);
   }
 
   private startPing() {
     this.clearPing();
     this.pingTimer = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ type: 'ping' }));
+      if (this.socket?.connected) {
+        this.socket.emit('ping');
       }
     }, PING_MS);
   }
@@ -127,7 +161,7 @@ class NotificationWebSocketClient {
       this.reconnectTimer = null;
       const url = getNotificationWebSocketUrl();
       if (url && this.token) {
-        this.open(url);
+        void this.open(url);
       }
     }, RECONNECT_MS);
   }

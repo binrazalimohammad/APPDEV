@@ -261,3 +261,16 @@ railway run php bin/console doctrine:migrations:migrate --no-interaction
 - Local `npm run server` — replaced by Railway HTTPS URL.
 
 Keep local dev as-is; use Railway for **production-like** demo and rubric criterion **Deployment & stability**.
+
+## Part 11 — Realtime order notifications (optional)
+
+Deploy Socket.IO as a **second Railway service** and enable instant order status on mobile:
+
+- **[DEPLOYMENT_RAILWAY_REALTIME.md](./DEPLOYMENT_RAILWAY_REALTIME.md)** — deploy steps
+- **[ORDER_NOTIFICATIONS.md](./ORDER_NOTIFICATIONS.md)** — runbook and troubleshooting
+
+Quick checklist:
+
+1. New Railway service, root `services/realtime-notification`
+2. Symfony vars: `WS_BROADCAST_URL`, `WS_INTERNAL_SECRET`
+3. Mobile: `PRODUCTION_REALTIME_ORIGIN` in `src/app/api/config.ts`

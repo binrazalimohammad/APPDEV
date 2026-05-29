@@ -1,16 +1,23 @@
-# WebSocket notifications (instant mobile bell updates)
+# Socket.IO notifications (instant mobile bell updates)
 
-Local dev uses a **Node WebSocket server** alongside Symfony. When a notification is saved, Symfony POSTs to the WS server, which pushes to the logged-in mobile client instantly.
+Local dev uses a **Node Socket.IO server** alongside Symfony. When a notification is saved, Symfony POSTs to the server, which pushes to the logged-in mobile client instantly.
 
 ## Architecture
 
 ```
-Admin updates status (Symfony)
-    → NotificationService saves to MySQL
-    → POST http://127.0.0.1:8082/broadcast
-    → WebSocket push to mobile app
-    → Bell badge updates immediately
+Admin updates booking/order status (Symfony casaclick)
+    → StatusChangeNotificationSubscriber
+    → NotificationService saves row + POST http://127.0.0.1:8082/broadcast
+    → Socket.IO emits notification + order_updated
+    → Mobile: bell, booking list/detail UI, optional FCM if backgrounded
 ```
+
+### Events
+
+| Event | When | Payload |
+|-------|------|---------|
+| `notification` | Any saved alert | `{ type, data, event }` |
+| `order_updated` | Application status change | `order_id`, `customer_id`, `status`, `message`, `timestamp` |
 
 Polling (`/api/mobile/sync/revision` every 8s) remains as **fallback** when WebSocket is disconnected.
 
@@ -23,7 +30,7 @@ Polling (`/api/mobile/sync/revision` every 8s) remains as **fallback** when WebS
    cd BinRazali
    npm run dev:all
    ```
-   Or separately: `npm run server` and `npm run ws:server`
+   Or separately: `npm run server` and `npm run io:server`
 
 3. Terminal 2 — Metro + app:
    ```powershell
@@ -43,14 +50,16 @@ Polling (`/api/mobile/sync/revision` every 8s) remains as **fallback** when WebS
 | Service | Port | Path |
 |---------|------|------|
 | Symfony API | 8000 | `/api/mobile/...` |
-| WebSocket | 8082 | `/notifications` |
+| Socket.IO | 8082 | `/notifications` |
 | Metro | 8081 | — |
 
 ## Production (Railway)
 
-WebSocket is **disabled** when `USE_PRODUCTION_API = true` (no WS server on Railway yet). The app falls back to 8-second polling.
+1. Deploy **`services/realtime-notification`** as a second Railway service — see **[DEPLOYMENT_RAILWAY_REALTIME.md](./DEPLOYMENT_RAILWAY_REALTIME.md)**.
+2. Set Symfony `WS_BROADCAST_URL` + `WS_INTERNAL_SECRET`.
+3. Set `PRODUCTION_REALTIME_ORIGIN` in `src/app/api/config.ts` to the realtime HTTPS domain.
 
-To enable on Railway later: deploy the WS server as a second service and set `WS_BROADCAST_URL` + expose `wss://` to the app.
+Until `PRODUCTION_REALTIME_ORIGIN` is set (and different from the API origin), the app uses **8-second polling** only.
 
 ## Verify
 

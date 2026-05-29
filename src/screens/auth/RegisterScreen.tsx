@@ -17,6 +17,7 @@ import FormDivider from '../../components/FormDivider';
 import FormFlash from '../../components/FormFlash';
 import GoogleMark from '../../components/icons/GoogleMark';
 import type { AuthStackParamList } from '../../navigation/types';
+import { isGoogleSignInConfigured } from '../../services/googleSignIn';
 import { validateRegisterForm } from '../../utils/registerValidation';
 import { formStyles } from '../../utils/formStyles';
 import { ROUTES, SPACING } from '../../utils';
@@ -75,6 +76,10 @@ const RegisterScreen = () => {
 
   const onGoogleRegister = () => {
     setFormError(null);
+    if (!isGoogleSignInConfigured()) {
+      setFormError('Set GOOGLE_WEB_CLIENT_ID in src/config/google.ts');
+      return;
+    }
     dispatch(userGoogleLogin({ role }));
   };
 

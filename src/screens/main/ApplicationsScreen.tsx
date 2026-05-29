@@ -14,7 +14,9 @@ import { useSelector } from 'react-redux';
 
 import { fetchApplications } from '../../app/api/application';
 import { fetchApplicationsRevision } from '../../app/api/sync';
+import { useOrderStatusListener } from '../../hooks/useOrderStatusListener';
 import { useRevisionPolling } from '../../hooks/useRevisionPolling';
+import { orderStatusLabel } from '../../constants/orderStatus';
 import { LISTINGS_SYNC_INTERVAL_MS } from '../../constants/sync';
 import type { Application } from '../../app/api/types';
 import type { RootState } from '../../app/store';
@@ -57,6 +59,16 @@ const ApplicationsScreen = () => {
     LISTINGS_SYNC_INTERVAL_MS,
   );
 
+  useOrderStatusListener({
+    onStatusChange: payload => {
+      setItems(prev =>
+        prev.map(item =>
+          Number(item.id) === payload.order_id ? { ...item, status: payload.status } : item,
+        ),
+      );
+    },
+  });
+
   useFocusEffect(
     useCallback(() => {
       setRefreshing(true);
@@ -91,7 +103,7 @@ const ApplicationsScreen = () => {
             }
           >
             <Text style={styles.name}>{item.listing?.name ?? 'Listing'}</Text>
-            <Text style={styles.status}>Status: {item.status}</Text>
+            <Text style={styles.status}>Status: {orderStatusLabel(item.status)}</Text>
             <Text style={styles.meta}>{item.createdAt?.slice(0, 10)}</Text>
           </Pressable>
         )}

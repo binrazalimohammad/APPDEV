@@ -9,6 +9,7 @@ import { formatFetchError } from '../api/networkErrors';
 import type { MobileUserProfile, RegisterRole } from '../api/types';
 import { getGoogleIdToken, signOutGoogle } from '../../services/googleSignIn';
 import { signInWithGoogleBrowser } from '../../services/googleSignInBrowser';
+import { firebaseSignInWithGoogleIdToken, firebaseSignOut } from '../../services/firebaseAuth';
 import { ALLOW_DEMO_LOGIN } from '../../constants/demoAuth';
 import {
   getGoogleSignInAlertMessage,
@@ -89,6 +90,8 @@ function* userGoogleLoginAsync(action: AuthAction): SagaIterator {
 
     try {
       const idToken: string = yield call(getGoogleIdToken);
+      // Keep Firebase Auth in sync with Google sign-in.
+      yield call(firebaseSignInWithGoogleIdToken, idToken);
       const res = yield call(exchangeGoogleIdToken, idToken, { role });
       token = res.token;
       user = res.user ?? null;
@@ -176,6 +179,7 @@ function* userLogoutAsync(): SagaIterator {
     if (token && token !== 'demo') {
       yield call(trackMobileActivity, 'MOBILE_LOGOUT', 'Signed out of CasaClick mobile', undefined, token);
     }
+    yield call(firebaseSignOut);
     yield call(signOutGoogle);
     const { resetPreferredApiOrigin } = yield call(() => import('../api/client'));
     yield call(resetPreferredApiOrigin);

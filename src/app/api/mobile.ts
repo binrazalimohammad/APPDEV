@@ -270,3 +270,26 @@ export async function markAllNotificationsRead(token: string): Promise<void> {
     baseUrl: MOBILE_API_BASE_URL,
   });
 }
+
+/** POST /api/mobile/push-token — register FCM device token for remote push */
+export async function registerPushToken(
+  token: string,
+  fcmToken: string,
+  platform: 'android' | 'ios' = 'android',
+): Promise<void> {
+  await apiFetch('/push-token', {
+    method: 'POST',
+    token,
+    baseUrl: MOBILE_API_BASE_URL,
+    body: { token: fcmToken, platform },
+  });
+}
+
+/** DELETE /api/mobile/push-token — clear server token on logout */
+export async function unregisterPushToken(token: string): Promise<void> {
+  await apiFetch('/push-token', {
+    method: 'DELETE',
+    token,
+    baseUrl: MOBILE_API_BASE_URL,
+  });
+}

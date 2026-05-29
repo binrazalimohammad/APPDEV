@@ -22,3 +22,25 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     signOut: jest.fn(async () => undefined),
   },
 }));
+
+jest.mock('@react-native-firebase/messaging', () => ({
+  __esModule: true,
+  default: () => ({
+    requestPermission: jest.fn(async () => 1),
+    getToken: jest.fn(async () => 'test-fcm-token'),
+    onTokenRefresh: jest.fn(() => jest.fn()),
+    onMessage: jest.fn(() => jest.fn()),
+    setBackgroundMessageHandler: jest.fn(),
+    AuthorizationStatus: { AUTHORIZED: 1, PROVISIONAL: 2 },
+  }),
+}));
+
+jest.mock('@notifee/react-native', () => ({
+  __esModule: true,
+  default: {
+    requestPermission: jest.fn(async () => ({})),
+    createChannel: jest.fn(async () => 'casaclick-notifications'),
+    displayNotification: jest.fn(async () => undefined),
+  },
+  AndroidImportance: { DEFAULT: 3 },
+}));
