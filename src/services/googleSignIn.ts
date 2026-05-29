@@ -30,12 +30,19 @@ export async function getGoogleIdToken(): Promise<string> {
 
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-  const result = await GoogleSignin.signIn();
-  if (result.type !== 'success') {
-    throw new Error('Google sign-in was cancelled');
+  let userInfo: unknown;
+  try {
+    userInfo = await GoogleSignin.signIn();
+  } catch (e: unknown) {
+    const raw = e instanceof Error ? e.message : String(e);
+    if (raw.toLowerCase().includes('cancel')) {
+      throw new Error('Google sign-in was cancelled');
+    }
+    throw e;
   }
 
-  let idToken = result.data?.idToken ?? null;
+  const idTokenFromUser = (userInfo as { idToken?: string | null } | null | undefined)?.idToken ?? null;
+  let idToken = idTokenFromUser;
   if (!idToken) {
     const tokens = await GoogleSignin.getTokens();
     idToken = tokens.idToken ?? null;

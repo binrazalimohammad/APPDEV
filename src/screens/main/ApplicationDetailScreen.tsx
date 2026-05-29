@@ -21,6 +21,8 @@ import CustomButton from '../../components/CustomButton';
 import CustomTextInput from '../../components/CustomTextInput';
 import FormCard from '../../components/FormCard';
 import PaymongoPaymentForm from '../../components/PaymongoPaymentForm';
+import { orderStatusLabel } from '../../constants/orderStatus';
+import { useOrderStatusListener } from '../../hooks/useOrderStatusListener';
 import { paymentMethodLabel } from '../../constants/paymongoPayment';
 import type { MainStackParamList } from '../../navigation/types';
 import { isCustomerRole } from '../../utils/roleNavigation';
@@ -29,15 +31,6 @@ import { runSafe } from '../../utils/runSafe';
 import { ROUTES } from '../../utils/routes';
 
 type Props = StackScreenProps<MainStackParamList, typeof ROUTES.APPLICATION_DETAIL>;
-
-const statusLabel: Record<string, string> = {
-  pending: 'Pending',
-  approved: 'Approved',
-  completed: 'Complete',
-  refunded: 'Refund',
-  cancelled: 'Cancelled',
-  rejected: 'Rejected',
-};
 
 type DetailContentProps = {
   app: Application;
@@ -64,7 +57,7 @@ function ApplicationDetailContent({
   onPaymongoCheckout,
 }: DetailContentProps) {
   const isCustomer = isCustomerRole(user);
-  const bookingStatus = statusLabel[app.status] ?? app.status;
+  const bookingStatus = orderStatusLabel(app.status);
   const canPayRent = isCustomer && app.status === 'approved';
 
   return (
@@ -153,6 +146,21 @@ const ApplicationDetailScreen = ({ route }: Props) => {
       runSafe(load());
     }, [load]),
   );
+
+  useOrderStatusListener({
+    orderId: id,
+    onStatusChange: payload => {
+      setApp(prev =>
+        prev
+          ? {
+              ...prev,
+              status: payload.status,
+            }
+          : prev,
+      );
+      void load();
+    },
+  });
 
   const onManualPay = useCallback(async () => {
     if (!token || token === 'demo') {

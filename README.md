@@ -16,6 +16,8 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 - **DFD Level 1 mobile web stack (React + Express + MySQL + PDF guide):** **`dfd-mobile-web/README.md`**
 - **Deploy / run checklist:** **`docs/DEPLOYMENT.md`**
 - **Deploy on Railway (step-by-step):** **`docs/DEPLOYMENT_RAILWAY.md`**
+- **Order notifications (WebSocket + FCM):** **`docs/ORDER_NOTIFICATIONS.md`**
+- **Railway realtime service:** **`docs/DEPLOYMENT_RAILWAY_REALTIME.md`**
 - **DFD Level 1 (PDF):** **`docs/dfd-level1-binrazali.pdf`** — generate with `npm run dfd-pdf` (see **`docs/DFD_LEVEL1_BINRAZALI.md`**)
 - **Rubric quick checklist:** **`docs/RUBRIC_CHECKLIST.md`**
 

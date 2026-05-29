@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "753181765263",
+    "project_id": "casaclick-55e32",
+    "storage_bucket": "casaclick-55e32.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753181765263:android:219c0bf8c4039b1d740afa",
+        "android_client_info": {
+          "package_name": "com.binrazali"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3U5jutKyLv08GF7yJDrMHhZPtsb8f-kE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753181765263:android:46fefc6a539d1ca1740afa",
+        "android_client_info": {
+          "package_name": "com.company.CasaClick"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3U5jutKyLv08GF7yJDrMHhZPtsb8f-kE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

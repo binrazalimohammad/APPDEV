@@ -12,7 +12,7 @@ const symfony = spawn('node', ['server.js'], {
   shell: process.platform === 'win32',
 });
 
-const ws = spawn('node', ['scripts/ws-notification-server.js'], {
+const ws = spawn('node', ['scripts/socketio-notification-server.js'], {
   cwd: root,
   stdio: 'inherit',
   shell: process.platform === 'win32',
@@ -37,5 +37,5 @@ ws.on('exit', code => {
   }
 });
 
-console.log('CasaClick dev: Symfony :8000 + WebSocket :8082');
+console.log('CasaClick dev: Symfony :8000 + Socket.IO :8082');
 console.log('Run: npm run android:reverse (includes port 8082)');

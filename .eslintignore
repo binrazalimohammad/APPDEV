@@ -1,0 +1,5 @@
+dfd-mobile-web/client/dist/**
+dfd-mobile-web/**/dist/**
+dfd-mobile-web/**
+**/*.min.js
+

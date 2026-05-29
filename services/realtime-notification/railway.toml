@@ -1,0 +1,13 @@
+# CasaClick realtime (Socket.IO + optional FCM)
+# Railway: New Service → same GitHub repo → Root Directory = services/realtime-notification
+# https://docs.railway.app/guides/deploy
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm install --omit=dev"
+
+[deploy]
+startCommand = "node server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "on_failure"

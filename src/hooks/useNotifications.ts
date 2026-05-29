@@ -11,6 +11,8 @@ import type { NotificationItem } from '../app/api/types';
 import { LISTINGS_SYNC_INTERVAL_MS } from '../constants/sync';
 import { NOTIFICATION_WS_ENABLED } from '../constants/websocket';
 import { notificationWebSocket } from '../services/notificationWebSocket';
+import { showLocalNotification } from '../services/localNotifications';
+import type { OrderUpdatedPayload } from '../services/orderStatusEvents';
 
 type UseNotificationsOptions = {
   enabled?: boolean;
@@ -105,11 +107,26 @@ export function useNotifications(
       });
       if (!item.isRead) {
         setUnreadCount(prev => prev + 1);
+        void showLocalNotification({
+          title: item.type === 'order_update' ? 'Order update' : 'CasaClick',
+          body: item.message,
+          data: {
+            notificationId: String(item.id),
+            type: item.type ?? '',
+            relatedId: item.relatedId != null ? String(item.relatedId) : '',
+          },
+          // Order screens show Alert via useOrderStatusListener; bell still updates here.
+          force: false,
+        });
       }
       lastSyncRevision.current = null;
     },
     [],
   );
+
+  const handleWsOrderUpdated = useCallback((_payload: OrderUpdatedPayload) => {
+    lastSyncRevision.current = null;
+  }, []);
 
   useEffect(() => {
     if (!enabled || !token || token === 'demo' || !NOTIFICATION_WS_ENABLED) {
@@ -120,13 +137,14 @@ export function useNotifications(
 
     notificationWebSocket.setHandlers({
       onNotification: handleWsNotification,
+      onOrderUpdated: handleWsOrderUpdated,
       onConnection: setWsConnected,
     });
 
     return () => {
       notificationWebSocket.setHandlers({});
     };
-  }, [enabled, handleWsNotification, token]);
+  }, [enabled, handleWsNotification, handleWsOrderUpdated, token]);
 
   const pollForChanges = useCallback(async () => {
     if (!enabled || !token || token === 'demo') {
