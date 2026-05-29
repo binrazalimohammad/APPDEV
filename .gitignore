@@ -78,3 +78,8 @@ yarn-error.log
 # Local infra env/volumes
 infra/ybackend-mysql/.env
 infra/ybackend-mysql/data/
+
+# Firebase Admin SDK keys (never commit)
+.local-secrets/
+*-firebase-adminsdk-*.json
+firebase-railway-oneline.txt

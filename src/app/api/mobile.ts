@@ -241,6 +241,26 @@ export async function submitPayment(
   return envelope.data;
 }
 
+type RealtimeConfigPayload = {
+  realtimeOrigin: string | null;
+};
+
+/** GET /api/mobile/realtime-config — public Socket.IO URL from Railway WS_BROADCAST_URL */
+export async function fetchRealtimeConfig(): Promise<string | null> {
+  try {
+    const envelope = await apiFetch<ApiEnvelope<RealtimeConfigPayload>>('/realtime-config', {
+      baseUrl: MOBILE_API_BASE_URL,
+    });
+    const url = envelope.data?.realtimeOrigin;
+    if (typeof url !== 'string' || !url.trim()) {
+      return null;
+    }
+    return url.trim().replace(/\/$/, '');
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchNotifications(token: string): Promise<{
   items: NotificationItem[];
   unread: number;

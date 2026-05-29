@@ -2,7 +2,10 @@ import { Platform } from 'react-native';
 import messaging, { type FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 
 import { registerPushToken, unregisterPushToken } from '../app/api/mobile';
-import { showLocalNotification } from './localNotifications';
+import {
+  showNotificationPopup,
+  type NotificationPopupInput,
+} from '../utils/showNotificationPopup';
 
 let currentJwt: string | null = null;
 let cachedFcmToken: string | null = null;
@@ -36,10 +39,6 @@ async function requestPushPermission(): Promise<boolean> {
 export async function displayFcmNotification(
   remoteMessage: FirebaseMessagingTypes.RemoteMessage,
 ): Promise<void> {
-  const title =
-    remoteMessage.notification?.title ??
-    remoteMessage.data?.title ??
-    'Order update';
   const body =
     remoteMessage.notification?.body ??
     remoteMessage.data?.body ??
@@ -50,12 +49,23 @@ export async function displayFcmNotification(
     return;
   }
 
-  await showLocalNotification({
-    title: String(title),
-    body: String(body),
-    data: remoteMessage.data as Record<string, string> | undefined,
-    force: true,
-  });
+  const data = remoteMessage.data ?? {};
+  const relatedId =
+    data.orderId != null
+      ? Number(data.orderId)
+      : data.relatedId != null
+        ? Number(data.relatedId)
+        : null;
+
+  const popup: NotificationPopupInput = {
+    type: String(data.type ?? 'order_update'),
+    message: String(body),
+    relatedId,
+  };
+  if (data.notificationId != null) {
+    popup.id = Number(data.notificationId);
+  }
+  showNotificationPopup(popup);
 }
 
 export async function setupPushNotifications(jwt: string): Promise<void> {

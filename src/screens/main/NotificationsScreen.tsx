@@ -21,7 +21,9 @@ import { getNotificationVisual } from '../../utils/notificationMeta';
 const NotificationsScreen = () => {
   const token = useSelector((s: RootState) => s.auth.token);
   const [refreshing, setRefreshing] = useState(false);
-  const { items, loading, markRead, markAllRead, reload } = useNotifications(token);
+  const { items, loading, markRead, markAllRead, reload } = useNotifications(token, {
+    poll: false,
+  });
 
   const load = useCallback(async () => {
     setRefreshing(true);
