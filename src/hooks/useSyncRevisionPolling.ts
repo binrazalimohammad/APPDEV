@@ -2,7 +2,10 @@ import { useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { fetchSyncRevision } from '../app/api/sync';
-import { LISTINGS_SYNC_INTERVAL_MS } from '../constants/sync';
+import {
+  ENABLE_BACKGROUND_SYNC_POLLING,
+  LISTINGS_SYNC_INTERVAL_MS,
+} from '../constants/sync';
 
 /**
  * Polls GET /api/mobile/sync/revision (listings + applications + payments).
@@ -14,12 +17,13 @@ export function useSyncRevisionPolling(
   enabled = true,
   intervalMs = LISTINGS_SYNC_INTERVAL_MS,
 ) {
+  const active = enabled && ENABLE_BACKGROUND_SYNC_POLLING;
   const lastRevision = useRef<string | null>(null);
   const onChangedRef = useRef(onChanged);
   onChangedRef.current = onChanged;
 
   const poll = useCallback(async () => {
-    if (!enabled || !token || token === 'demo') {
+    if (!active || !token || token === 'demo') {
       return;
     }
     try {
@@ -36,11 +40,11 @@ export function useSyncRevisionPolling(
     } catch {
       // silent — pull-to-refresh still works
     }
-  }, [enabled, token]);
+  }, [active, token]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!enabled || !token || token === 'demo') {
+      if (!active || !token || token === 'demo') {
         return undefined;
       }
       void poll().catch(() => undefined);
@@ -48,7 +52,7 @@ export function useSyncRevisionPolling(
         void poll().catch(() => undefined);
       }, intervalMs);
       return () => clearInterval(id);
-    }, [enabled, token, poll, intervalMs]),
+    }, [active, token, poll, intervalMs]),
   );
 
   return { pollNow: poll };
