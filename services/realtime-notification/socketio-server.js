@@ -136,10 +136,18 @@ async function validateToken(token) {
     if (id == null) {
       return null;
     }
-    return { id: Number(id), email: user.email, name: user.name };
+    const roles = Array.isArray(user?.roles) ? user.roles : [];
+    return { id: Number(id), email: user.email, name: user.name, roles };
   } catch {
     return null;
   }
+}
+
+const STAFF_ROLES = new Set(['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_SUPER_ADMIN']);
+
+function isStaffUser(profile) {
+  const roles = profile?.roles ?? [];
+  return roles.some(r => STAFF_ROLES.has(String(r)));
 }
 
 const app = express();
@@ -181,7 +189,10 @@ io.on('connection', socket => {
     return;
   }
   socket.join(`user:${userId}`);
-  socket.emit('auth_ok', { userId });
+  if (isStaffUser(socket.data.profile)) {
+    socket.join('staff');
+  }
+  socket.emit('auth_ok', { userId, staff: isStaffUser(socket.data.profile) });
 
   socket.on('ping', () => {
     socket.emit('pong');
@@ -224,7 +235,7 @@ app.post('/broadcast', async (req, res) => {
 
   // Dedicated order status channel for mobile booking screens (real-time UI).
   if (eventName === 'order_updated' && order) {
-    io.to(`user:${userId}`).emit('order_updated', {
+    const orderPayload = {
       order_id: order.order_id,
       customer_id: order.customer_id,
       status: order.status,
@@ -232,7 +243,9 @@ app.post('/broadcast', async (req, res) => {
       timestamp: order.timestamp,
       statusLabel: order.statusLabel ?? order.status,
       notification,
-    });
+    };
+    io.to(`user:${userId}`).emit('order_updated', orderPayload);
+    io.to('staff').emit('booking_updated', orderPayload);
   }
 
   const message =
