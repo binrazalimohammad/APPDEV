@@ -144,9 +144,21 @@ export function useNotifications(
     [],
   );
 
-  const handleWsOrderUpdated = useCallback((_payload: OrderUpdatedPayload) => {
-    lastSyncRevision.current = null;
-  }, []);
+  const handleWsOrderUpdated = useCallback(
+    (payload: OrderUpdatedPayload) => {
+      lastSyncRevision.current = null;
+      void load(true);
+      const message = payload.message?.trim();
+      if (message) {
+        showNotificationPopup({
+          type: 'order_update',
+          message,
+          relatedId: payload.order_id,
+        });
+      }
+    },
+    [load],
+  );
 
   useEffect(() => {
     if (!enabled || !token || token === 'demo' || !NOTIFICATION_WS_ENABLED) {

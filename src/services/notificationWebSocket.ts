@@ -110,6 +110,10 @@ class NotificationWebSocketClient {
 
     socket.on('order_updated', raw => {
       this.handleOrderUpdated(raw);
+      const embedded = raw?.notification;
+      if (embedded && typeof embedded === 'object') {
+        this.onNotification?.(embedded as NotificationItem);
+      }
     });
 
     socket.on('connect_error', () => {
