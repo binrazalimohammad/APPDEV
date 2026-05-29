@@ -6,7 +6,7 @@ Real-time order (booking) status updates for the CasaClick mobile app and Symfon
 
 | Layer | Behavior |
 |-------|----------|
-| **Admin** | Changes booking status at `/admin/bookings` |
+| **Landlord** | Approves/rejects at website **Applications** (`/application`) — admin view-only at `/admin/bookings` |
 | **Symfony** | Saves `notification` row + POSTs to Socket.IO |
 | **Socket.IO** | Emits `order_updated` to the tenant’s phone |
 | **Mobile** | Updates booking list/detail + bell; Alert in foreground |
@@ -56,7 +56,7 @@ Legacy keys (`approved`, etc.) remain valid so existing data is not broken.
    npm start
    npm run android
    ```
-5. Sign in on mobile → admin changes booking status → UI updates within ~1s.
+5. Sign in on mobile → **landlord** approves on website Applications → tenant UI updates within ~1s.
 
 ## Production (Railway)
 
