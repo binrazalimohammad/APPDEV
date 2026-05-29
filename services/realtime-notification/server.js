@@ -1,5 +1,5 @@
 /**
- * Railway entrypoint — loads the shared Socket.IO server from the BinRazali repo root.
+ * Railway entrypoint — Socket.IO + FCM (self-contained for Root Directory deploy).
  * Root Directory on Railway: services/realtime-notification
  */
-require('../../scripts/socketio-notification-server.js');
+require('./socketio-server.js');
