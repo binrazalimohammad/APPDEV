@@ -6,11 +6,21 @@ Real-time order (booking) status updates for the CasaClick mobile app and Symfon
 
 | Layer | Behavior |
 |-------|----------|
-| **Landlord** | Approves/rejects at website **Applications** (`/application`) — admin view-only at `/admin/bookings` |
-| **Symfony** | Saves `notification` row + POSTs to Socket.IO |
-| **Socket.IO** | Emits `order_updated` to the tenant’s phone |
-| **Mobile** | Updates booking list/detail + bell; Alert in foreground |
+| **Landlord** | Approves/rejects at website **Applications** (`/application`) and **Payments** — admin bookings are view-only |
+| **Symfony** | `StatusChangeNotificationSubscriber` saves a `notification` row + POSTs to Socket.IO |
+| **Socket.IO** | Applications: `order_updated` + bell; payments: `new_notification` |
+| **Mobile** | Bell list, booking refresh, foreground alert; types include `application_approved`, `application_rejected`, `payment_approved`, `payment_rejected` |
 | **FCM** | Push when app is backgrounded/closed (optional) |
+
+### Tenant notification types (landlord actions)
+
+| Landlord action | Notification `type` | Tenant sees |
+|-----------------|----------------------|-------------|
+| Approve application | `application_approved` | “Your application for … has been approved…” |
+| Reject application | `application_rejected` | “Your application for … was declined…” |
+| Approve payment | `payment_approved` | “Your payment of ₱… has been approved.” |
+| Reject payment | `payment_rejected` | “Your payment … was declined.” |
+| Other status changes | `order_update` / `payment_update` | Generic status line |
 
 ## Status labels (admin → customer)
 

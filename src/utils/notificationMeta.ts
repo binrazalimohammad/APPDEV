@@ -9,7 +9,8 @@ export type NotificationVisual = {
 const TYPE_MAP: Record<string, NotificationVisual> = {
   lease_update: { icon: '🏠', dotColor: COLORS.primary, label: 'Lease' },
   application_update: { icon: '📋', dotColor: COLORS.primary, label: 'Application' },
-  application_approved: { icon: '🏠', dotColor: COLORS.success, label: 'Application' },
+  application_approved: { icon: '🏠', dotColor: COLORS.success, label: 'Application approved' },
+  application_rejected: { icon: '📋', dotColor: COLORS.error, label: 'Application declined' },
   application_submitted: { icon: '📋', dotColor: COLORS.info, label: 'Application' },
   maintenance_update: { icon: '🔧', dotColor: COLORS.warning, label: 'Maintenance' },
   listing_update: { icon: '🏡', dotColor: COLORS.info, label: 'Listing' },
